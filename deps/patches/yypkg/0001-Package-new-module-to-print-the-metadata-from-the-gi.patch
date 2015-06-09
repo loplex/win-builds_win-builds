@@ -1,0 +1,156 @@
+From bfaff3ae85c0d45734c20c24a007e47d93b80afc Mon Sep 17 00:00:00 2001
+From: Adrien Nader <adrien@notk.org>
+Date: Sun, 7 Jun 2015 16:35:49 +0200
+Subject: [PATCH] Package: new module to print the metadata from the given
+ packages.
+
+---
+ src/yypkg/package.ml  | 104 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/yypkg/package.mli |   2 +
+ src/yypkg/yypkg.ml    |   3 ++
+ 3 files changed, 109 insertions(+)
+ create mode 100644 src/yypkg/package.ml
+ create mode 100644 src/yypkg/package.mli
+
+diff --git a/src/yypkg/package.ml b/src/yypkg/package.ml
+new file mode 100644
+index 0000000..58c985e
+--- /dev/null
++++ b/src/yypkg/package.ml
+@@ -0,0 +1,104 @@
++open Types
++open Lib
++
++type t = {
++  build : bool;
++  comments : bool;
++  description : bool;
++  host : bool;
++  name : bool;
++  packager_email : bool;
++  packager_name : bool;
++  predicates : bool;
++  size_expanded : bool;
++  target : bool;
++  version : bool;
++}
++
++let t opts =
++  let aux t = function
++    | Args.Opt ("--build", _) -> { t with build = true }
++    | Args.Opt ("--comments", _) -> { t with comments = true }
++    | Args.Opt ("--description", _) -> { t with description = true }
++    | Args.Opt ("--host", _) -> { t with host = true }
++    | Args.Opt ("--name", _) -> { t with name = true }
++    | Args.Opt ("--packager-email", _) -> { t with packager_email = true }
++    | Args.Opt ("--packager-name", _) -> { t with packager_name = true }
++    | Args.Opt ("--predicates", _) -> { t with predicates = true }
++    | Args.Opt ("--size-expanded", _) -> { t with size_expanded = true }
++    | Args.Opt ("--target", _) -> { t with target = true }
++    | Args.Opt ("--version", _) -> { t with version = true }
++    | _ -> t
++  in
++  List.fold_left aux
++  { build = false; comments = false; description = false; host = false;
++    name = false; packager_email = false; packager_name = false;
++    predicates = false; size_expanded = false; target = false; version = false
++  }
++  opts
++
++let files subopts =
++  ListLabels.fold_left ~init:[] subopts ~f:(fun accu subopt ->
++    match subopt with
++    | Args.Opt (_, l) -> accu @ (Args.to_string_list l)
++    | _ -> accu
++  )
++
++let string_of_size size =
++  let p s i =
++    Printf.sprintf "%Ld %s" i s
++  in
++  match size with
++  | FileUtil.TB i -> p "TB" i
++  | FileUtil.GB i -> p "GB" i
++  | FileUtil.MB i -> p "MB" i
++  | FileUtil.KB i -> p "KB" i
++  | FileUtil.B  i -> p  "B" i
++
++let infos subopts =
++  let p package field v =
++    Printf.fprintf stdout "%S:%S:%S\n" package field v
++  in
++  let t = t subopts in
++  ListLabels.iter (files subopts) ~f:(fun package ->
++    let metadata, _, _ = Lib.open_package package in
++    let p = p package in
++    (if t.build then p "build" (string_of_int (snd metadata.version)));
++    (if t.comments then p "comments" (String.concat "; " metadata.comments));
++    (if t.description then p "description" metadata.description);
++    (if t.host then p "host" metadata.host);
++    (if t.name then p "name" metadata.name);
++    (if t.packager_email then p "packager_email" metadata.packager_email);
++    (if t.packager_name then p "packager_name" metadata.packager_name);
++    (if t.size_expanded then p "size_expanded" (string_of_size metadata.size_expanded));
++    (if t.predicates then p "predicates" (String.concat "; " (List.map (fun (a, b) -> String.concat "=" [ a; b]) metadata.predicates)));
++    (if t.target then may (p "target") metadata.target);
++    (if t.version then p "version" (fst metadata.version));
++  )
++
++let main cmd_line =
++  match cmd_line with
++  | [ Args.Opt ("--script", [ Args.Opt ("--metadata", subopts) ])] ->
++      infos subopts
++  | _ -> (* XXX *)
++      ()
++
++let cli_spec =
++  let mk ~n ~h c = Args.spec ~name:n ~help:h ~children:c in
++  mk ~n:"--package" ~h:"parent option for:" [
++    mk ~n:"--script" ~h:"accessor to:" [
++      mk ~n:"--metadata" ~h:"accessor to:" [
++        mk ~n:"--build" ~h:"value for the build metadata field" [];
++        mk ~n:"--comments" ~h:"value for the comments metadata field" [];
++        mk ~n:"--description" ~h:"value for the description metadata field" [];
++        mk ~n:"--host" ~h:"value for the host metadata field" [];
++        mk ~n:"--name" ~h:"value for the name metadata field" [];
++        mk ~n:"--packager-email" ~h:"value for the packager-email metadata field" [];
++        mk ~n:"--packager-name" ~h:"value for the packager-name metadata field" [];
++        mk ~n:"--predicates" ~h:"value for the predicates metadata field" [];
++        mk ~n:"--size-expanded" ~h:"value for the size-expanded metadata field" [];
++        mk ~n:"--target" ~h:"value for the target metadata field" [];
++        mk ~n:"--version" ~h:"value for the version metadata field" [];
++      ];
++    ];
++  ]
+diff --git a/src/yypkg/package.mli b/src/yypkg/package.mli
+new file mode 100644
+index 0000000..1bce40a
+--- /dev/null
++++ b/src/yypkg/package.mli
+@@ -0,0 +1,2 @@
++val cli_spec : Args.child
++val main : Args.opt list -> unit
+diff --git a/src/yypkg/yypkg.ml b/src/yypkg/yypkg.ml
+index 8bcad7d..f59b7e4 100644
+--- a/src/yypkg/yypkg.ml
++++ b/src/yypkg/yypkg.ml
+@@ -34,6 +34,7 @@ let cmd_line_spec =
+     ];
+     mk ~n:"--uninstall" ~h:"uninstall a package by name" [];
+     mk ~n:"--list" ~h:"list the packages installed" [];
++    Package.cli_spec;
+     Config.cli_spec;
+     Repository.cli_spec;
+     Makepkg.cli_spec;
+@@ -141,6 +142,8 @@ let main () =
+   | Some "--config" ->
+       enter prefix;
+       Config.main actionopts
++  | Some "--package" ->
++      Package.main actionopts
+   | Some "--makepkg" ->
+       Makepkg.main actionopts
+   | Some "--repository" ->
+-- 
+2.3.5
+

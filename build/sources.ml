@@ -20,7 +20,7 @@ module Git = struct
   }
   type source += T of t
 
-  let git_invoke ~dir =
+  let invoke ~dir =
     let git args =
       Array.of_list ("git" :: (sp "--git-dir=%s/.git" dir) :: args)
     in
@@ -29,11 +29,13 @@ module Git = struct
       | `Archive -> git ("archive" :: args)
       | `Fetch -> git ("fetch" :: args)
       | `Remote -> git ("remote" :: args)
-      | `LsFiles -> git ( "ls-files" :: args)
+      | `LsFiles -> git ("ls-files" :: args)
+      | `RevParseShort -> git ("rev-parse" :: "--verify" :: "--short" :: args)
     )
 
   let tar ~tarball ~git ~prefix ~dir =
     let open Unix in
+    Lib.(log wrn "Building archive from git at %S.\n%!" tarball);
     let snd_in, fst_out = pipe () in
     set_close_on_exec snd_in;
     let git = run ~stdout:fst_out (git `LsFiles [ "HEAD" ]) in
@@ -61,6 +63,7 @@ module Git = struct
 
   let archive ~obj ~tarball ~git ~prefix =
     let open Unix in
+    Lib.(log wrn "Building archive from git at %S.\n%!" tarball);
     let snd_in, fst_out = pipe () in
     set_close_on_exec snd_in;
     let prefix = sp "--prefix=%s/" prefix in
@@ -95,19 +98,31 @@ module Git = struct
       try run (git `Remote [ "add"; remote; uri]) () with _ -> ()
     ) remote
 
+  let version ~sources =
+    match List.find_all (function T _ -> true | _ -> false) sources with
+    | [ T { dir; obj } ] -> (
+        match obj with
+        | Some obj -> run_and_read (invoke ~dir `RevParseShort [ obj ])
+        | None -> "disk"
+      )
+    | _ ->
+        assert false
+
   let get { tarball; dir; obj; uri; remote; prefix } =
-    let git = git_invoke ~dir in
+    let git = invoke ~dir in
     match obj with
     | None ->
         tar ~tarball ~git ~dir ~prefix
     | Some obj -> (
         may (fun uri -> remote_add ~uri ~git ~dir ?remote ()) uri;
         fetch ~remote ~git;
+        let version = run_and_read (invoke ~dir `RevParseShort [ obj ]) in
+        let subst = substitute_variables ~dict: [ "VERSION", version ] in
+        let tarball = subst tarball in
+        let dir = subst dir in
+        let prefix = subst prefix in
         archive ~tarball ~obj ~git ~prefix
     )
-
-  let ts _ =
-    "git-sources-are-always-more-recent", infinity
 end
 
 module Tarball = struct
@@ -172,9 +187,6 @@ module Tarball = struct
 
   let get ~package (file, sha1) =
     get (file, sha1)
-
-  let ts file =
-    Unix.handle_unix_error (fun file -> (Unix.lstat file).Unix.st_mtime) file
 end
 
 let get =
@@ -204,12 +216,34 @@ let get =
     | None -> ()
     | Some exn -> raise exn)
 
-let timestamp = function
-  | Patch patch -> patch, 0.
-  | WB file
-  | Tarball (file, _) -> file, Tarball.ts file
-  | Git.T x -> Git.ts x
-  | _ -> assert false
+let version_of_package package =
+  let o = run_and_read [|
+    "yypkg"; "--package"; "--script"; "--metadata"; "--version"; package |]
+  in
+  Scanf.sscanf o "%S:\"version\":%S" (fun _ v -> v)
+
+let compare ~version ~sources ~output =
+  let ts f =
+    try Unix.((lstat f).st_mtime) with _ -> 0.
+  in
+  let ts_output = ts output in
+  let compare_one = function
+    | Patch patch -> compare (ts patch) ts_output
+    | WB file -> compare (ts file) ts_output
+    | Tarball (file, _) -> compare (ts file) ts_output
+    | Git.T { Git.obj = None } ->
+        1
+    | Git.T _ ->
+        if Sys.file_exists output then
+          try
+            abs (compare version (version_of_package output))
+          with
+            _ -> 1
+        else
+          1
+    | _ -> assert false
+  in
+  List.fold_left (fun accu s -> max accu (compare_one s)) (-1) sources
 
 let substitute_variables_sources ~dir ~package ~dict source =
   let sources_dir_ize s = (dir ^/ package) ^/ s in
@@ -225,4 +259,3 @@ let substitute_variables_sources ~dir ~package ~dict source =
         prefix = subst prefix;
       })
   | x -> x
-

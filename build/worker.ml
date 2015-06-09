@@ -6,26 +6,21 @@ open Sources
 
 open Lib
 
-let needs_rebuild ~sources ~outputs =
-  let ts_outputs = ListLabels.map outputs ~f:(fun file ->
-    file, (try Unix.((lstat file).st_mtime) with _ -> 0.)
-  )
-  in
-  let ts_sources = List.map Sources.timestamp sources in
-  let assoc_data_fold_left f = List.fold_left (fun p (_k, v) -> f p v) in
-  let ts_outputs_min = assoc_data_fold_left min infinity ts_outputs in
-  let ts_sources_max = assoc_data_fold_left max 0. ts_sources in
-  if ts_outputs_min < ts_sources_max then (
-    (* TODO: these log messages need context but it's really annoying to do
-      * without a better log function which requires ikfprintf which requires
-      * ocaml 4.00 so for now... *)
-    let l = List.filter (fun (_f, ts) -> ts > ts_outputs_min) ts_sources in
-    log inf "Output is older than %s.\n%!"
-      (String.concat ", " (List.map (fun f -> Filename.basename (fst f)) l));
-    true
-  )
-  else
-    false
+let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
+
+let dict0 ~builder ~p =
+  [
+    "VERSION", "${VERSION}";
+    "PACKAGE", p.package;
+    "VARIANT", s_of_variant p.variant;
+    "BUILD", string_of_int p.build;
+    "TARGET_TRIPLET", p.prefix.target.triplet;
+    "HOST_TRIPLET", p.prefix.host.triplet;
+    "BUILD_TRIPLET", p.prefix.build.triplet;
+  ]
+
+let needs_rebuild ~version ~sources ~outputs =
+  List.exists (fun o -> Sources.compare ~version ~sources ~output:o > 0) outputs
 
 let run_build_shell ~devshell ~run p =
   let dir = p.dir ^/ p.package in
@@ -69,12 +64,41 @@ let build_one_devshell ~env p =
   run_build_shell ~devshell:true ~run:(run ~env) p
 
 let build_one ~env ~builder p =
-  let outputs = List.map ((^/) builder.yyoutput) p.outputs in
-  Sources.get p;
+  let dict0 = dict0 ~builder ~p in
+  let p_update ~dict ~p =
+    {
+      p with
+      sources = List.map (substitute_variables_sources ~dir:p.dir ~package:p.package ~dict) p.sources;
+      outputs = List.map (substitute_variables ~dict) p.outputs;
+    }
+  in
+  let p =
+    if p.version <> "git" then (
+      let p = p_update ~dict:(("VERSION", p.version) :: dict0) ~p in
+      Sources.get p;
+      p
+    )
+    else (
+      let p = p_update ~dict:dict0 ~p in
+      Sources.get p;
+      let p = { p with version = Sources.Git.version ~sources:p.sources } in
+      let p = p_update ~dict:[ "VERSION", p.version ] ~p in
+      p
+    )
+  in
+  if (try Sys.getenv "DRYRUN" = "1" with Not_found -> false)
+    && p.sources <> [] then
+  (
+    ListLabels.iter p.sources ~f:(function
+      | Tarball (file, _) -> Lib.(log dbg " %s -> source=%s\n%!" p.package file)
+      | _ -> ()
+    )
+  );
   if p.devshell then
     build_one_devshell ~env p
   else (
-    if not (needs_rebuild ~sources:p.sources ~outputs) then (
+    let outputs = List.map ((^/) builder.yyoutput) p.outputs in
+    if not (needs_rebuild ~version:p.version ~sources:p.sources ~outputs) then (
       progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name p)
     )
     else (
@@ -117,37 +141,26 @@ let add ~push ~builder =
     )
   in
   let add_aux p = (if shall_build p then colorize p); push p; p in
-  let default_output () =
+  let default_output =
     if builder.prefix.target <> builder.prefix.host then
       "${PACKAGE}-${VERSION}-${BUILD}-${TARGET_TRIPLET}-${HOST_TRIPLET}.txz"
     else
       "${PACKAGE}-${VERSION}-${BUILD}-${HOST_TRIPLET}.txz"
   in
   fun
-    ?(outputs = [ default_output () ])
+    ?(outputs = [ default_output ])
     ?(native_deps = [])
     ?(cross_deps = builder.default_cross_deps)
     ~dir ~dependencies ~version ~build ~sources
     (package, variant)
   ->
-    let is_virtual = (sources = []) in
-    let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> "" in
-    (if not is_virtual then (
+    (if sources <> [] then (
       Lib.log Lib.dbg
         "Adding package %S %S %d.\n%!"
         (package ^ (s_of_variant ~pref:":" variant))
         version
         build;
     ));
-    let dict = [
-      "PACKAGE", package;
-      "VARIANT", s_of_variant variant;
-      "VERSION", version;
-      "BUILD", string_of_int build;
-      "TARGET_TRIPLET", builder.prefix.target.triplet;
-      "HOST_TRIPLET", builder.prefix.host.triplet;
-      "BUILD_TRIPLET", builder.prefix.build.triplet;
-    ] in
     let sources =
       if dir <> "" then
         List.concat [
@@ -159,20 +172,13 @@ let add ~push ~builder =
       else
         []
     in
-    let sources = List.map (substitute_variables_sources ~dir ~package ~dict) sources in
-    (if not is_virtual then (
-      ListLabels.iter sources ~f:(function
-        | Tarball (file, _) -> Lib.(log dbg " %s -> source=%s\n%!" package file)
-        | _ -> ()
-      )
-    ));
     let p = {
       package; variant; dir; dependencies; native_deps; cross_deps;
       version; build;
-      sources;
-      outputs = List.map (substitute_variables ~dict) outputs;
+      sources; outputs;
       to_build = false;
       devshell = false;
+      prefix = builder.prefix;
     }
     in
     (* Automatically inject a "devshell" package and don't return it since it

@@ -60,6 +60,17 @@ let run ?(stdin=Unix.stdin) ?(stdout=Unix.stdout) ?(stderr=Unix.stderr) ?env a =
   log dbg ", pid = %d.\n%!" pid;
   (fun () -> waitpid dbg { pid = pid; cmd = cmd })
 
+(* XXX: only valid for short reads *)
+let run_and_read cmd =
+  let buf = String.create 4096 in
+  let pipe_read, pipe_write = Unix.pipe () in
+  let waiter = run ~stdout:pipe_write cmd in
+  Unix.close pipe_write;
+  let l = Unix.read pipe_read buf 0 (String.length buf) in
+  Unix.close pipe_read;
+  waiter ();
+  String.sub buf 0 (l-1) (* (l-1) because of a trailing \n *)
+
 let make_path_absolute_if_not path =
   let cwd = Sys.getcwd () in
   if Filename.is_relative path then

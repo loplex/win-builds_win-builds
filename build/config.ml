@@ -134,6 +134,7 @@ module Package = struct
     sources : source list;
     outputs : string list;
     devshell : bool;
+    prefix : Prefix.t;
     mutable to_build : bool;
   }
 

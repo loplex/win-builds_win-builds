@@ -136,6 +136,7 @@ cryptokit: ocaml findlib
 
 yypkg: ocaml findlib libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ)
 	$(call DOWNLOAD_AND_EXTRACT,yypkg-$(YYPKG_VERSION),tar.xz)
+	cd yypkg-$(YYPKG_VERSION) && $(call P,yypkg/0001-Package-new-module-to-print-the-metadata-from-the-gi)
 	cd yypkg-$(YYPKG_VERSION) && $(MAKE) yypkg-no-gui
 	cp -L yypkg-$(YYPKG_VERSION)/src/yypkg.native $(PREFIX)/bin/yypkg
 

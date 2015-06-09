@@ -44,7 +44,7 @@ deps:
 	$(MAKE) -C deps PREFIX="$(PREFIX)" PATH="$(PATH)" LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)"
 
 tarballs-upload:
-	LOGLEVEL=dbg $(MAKE) 2>&1 \
+	LOGLEVEL=dbg DRYRUN=1 $(MAKE) 2>&1 \
 	  | sed -n 's; [^ ]\+ -> source=\(.\+/.\+/.\+\);\1; p' > file_list
 	rsync -avP --chmod=D755,F644 --delete-after --files-from=file_list .. $(WEB)/$(VERSION)/tarballs/$$dir/
 	rm file_list
