@@ -123,7 +123,10 @@ let build_env builder =
   ));
   env
 
-let add ~push ~builder =
+let register ~builder =
+  let push p =
+    builder.packages <- (builder.packages @ [ p ])
+  in
   let shall_build = shall_build builder.name in
   let add_cross_builder_deps ~builder_name l =
     let v = String.uppercase builder_name in
@@ -185,6 +188,3 @@ let add ~push ~builder =
      * makes no sense to have other packages depend on it. *)
     ignore (add_aux { p with devshell = true });
     add_aux p
-
-let register ~builder =
-  add ~builder ~push:(fun p -> builder.packages <- (builder.packages @ [p]))
