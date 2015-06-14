@@ -57,6 +57,7 @@ module Arch = struct
     in
     let exe_format =
       match components with
+      | [ _; _; "cygwin" ]
       | [ _; _; "msys" ] -> "PE"
       (* The Mac OS X case is listed below but file says
        * "dynamically linked shared library" while the greps in the slackbuilds
