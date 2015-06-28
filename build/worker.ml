@@ -134,9 +134,15 @@ let register ~builder =
   let shall_build = shall_build builder.name in
   let add_cross_builder_deps ~builder_name l =
     let v = String.uppercase builder_name in
-    let new_deps = String.concat "," l in
-    let cur = try Sys.getenv v with Not_found -> "" in
-    Unix.putenv v (String.concat "," [ cur; new_deps ])
+    let set = set_of_env v in
+    let set = ListLabels.fold_left l ~init:set ~f:(fun set e ->
+      if not (List.mem e set) then
+        e :: set
+      else
+        set
+    )
+    in
+    Unix.putenv v (String.concat "," set)
   in
   let rec colorize = function
     | Virtual ( { to_build = false } as c)
