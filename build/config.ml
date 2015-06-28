@@ -150,7 +150,7 @@ module Package = struct
   let substitute_variables ~dict s =
     let f k =
       try
-        Lib.log Lib.dbg "Looking for assoc for %S in %S.\n%!" k s;
+        Lib.log Lib.dbg "Associating %S in %S.\n%!" k s;
         List.assoc k dict
       with Not_found as exn ->
         Lib.log Lib.cri "Couldn't resolve variable %S in %S.\n%!" k s;
