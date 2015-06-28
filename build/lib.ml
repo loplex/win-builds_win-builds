@@ -94,3 +94,6 @@ let version = Sys.getenv "VERSION"
 
 let set_of_env n =
   Str.split (Str.regexp ",") (try (Sys.getenv n) with Not_found -> "")
+
+let dryrun =
+  not (try Sys.getenv "DRYRUN" = "0" with Not_found -> true)

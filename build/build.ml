@@ -35,7 +35,7 @@ let build ~failer builder =
     in
     aux packages
   ));
-  if !did_something then (
+  if !did_something && not dryrun then (
     progress "[%s] Setting up repository.\n%!" builder.prefix.nickname;
     try
       run [| "yypkg"; "--repository"; "--generate"; builder.yyoutput |] ()

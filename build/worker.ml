@@ -97,7 +97,7 @@ let build_one ~env ~builder ~p:((c, r) as p) =
       | _ -> ()
     )
   );
-  if (try Sys.getenv "DRYRUN" = "0" with Not_found -> true) then (
+  if not dryrun then (
     if c.devshell then
       build_one_devshell ~env ~p
     else (
