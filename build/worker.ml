@@ -90,24 +90,25 @@ let build_one ~env ~builder ~p:((c, r) as p) =
       p_update ~dict:[ "VERSION", r.version ] ~p
     )
   in
-  if (try Sys.getenv "DRYRUN" = "1" with Not_found -> false)
-    && r.sources <> [] then
+  if r.sources <> [] then
   (
     ListLabels.iter r.sources ~f:(function
       | Tarball (file, _) -> Lib.(log dbg " %s -> source=%s\n%!" c.package file)
       | _ -> ()
     )
   );
-  if c.devshell then
-    build_one_devshell ~env ~p
-  else (
-    let outputs = List.map ((^/) builder.yyoutput) r.outputs in
-    if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
-      progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name c)
-    )
+  if (try Sys.getenv "DRYRUN" = "0" with Not_found -> true) then (
+    if c.devshell then
+      build_one_devshell ~env ~p
     else (
-      progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
-      build_one_package ~builder ~outputs ~env ~p)
+      let outputs = List.map ((^/) builder.yyoutput) r.outputs in
+      if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
+        progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name c)
+      )
+      else (
+        progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
+        build_one_package ~builder ~outputs ~env ~p)
+    )
   )
 
 let build_env builder =
