@@ -1,6 +1,6 @@
 type poison = Poison
 
-let (^/) = Filename.concat
+let (^/) a b = String.concat "/" [ a; b ]
 
 let cri = 0
 let err = 1
