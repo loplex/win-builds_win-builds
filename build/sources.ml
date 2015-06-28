@@ -132,7 +132,7 @@ end
 module Tarball = struct
   let get (file, sha1) =
     let download ~file =
-      run [| "curl"; "-o"; file; (Sys.getenv "MIRROR") ^ "/" ^ file |] ()
+      run [| "curl"; "-o"; file; (Sys.getenv "MIRROR") ^/ file |] ()
     in
     let file_matches_sha1 ~sha1 ~file =
       if sha1 = "" then (
