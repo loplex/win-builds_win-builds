@@ -91,3 +91,14 @@ let work_dir =
     make_path_absolute_if_not Sys.argv.(1)
 
 let version = Sys.getenv "VERSION"
+
+let set_of_env n =
+  Str.split (Str.regexp ",") (try (Sys.getenv n) with Not_found -> "")
+
+let chose_source =
+  let l = set_of_env "FROM_VCS" in
+  fun ~name ~vcs ~default ->
+    if List.mem name l then
+      vcs
+    else
+      default
