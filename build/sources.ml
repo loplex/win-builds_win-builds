@@ -112,7 +112,9 @@ module Git = struct
     let git = invoke ~dir in
     match obj with
     | None ->
-        tar ~tarball ~git ~dir ~prefix
+        if not (Sys.file_exists tarball) then (
+          tar ~tarball ~git ~dir ~prefix
+        )
     | Some obj -> (
         may (fun uri -> remote_add ~uri ~git ~dir ?remote ()) uri;
         fetch ~remote ~git;
@@ -121,7 +123,9 @@ module Git = struct
         let tarball = subst tarball in
         let dir = subst dir in
         let prefix = subst prefix in
-        archive ~tarball ~obj ~git ~prefix
+        if not (Sys.file_exists tarball) then (
+          archive ~tarball ~obj ~git ~prefix
+        )
     )
 end
 
