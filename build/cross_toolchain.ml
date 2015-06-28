@@ -6,6 +6,7 @@ let do_adds builder =
 #use "slackware64-current/d/binutils/wb.ml"
 #use "mingw/mingw-w64/wb:common.ml"
 #use "mingw/mingw-w64/wb:headers.ml"
+  let gcc_core_dependencies = [ binutils; mingw_w64_headers ] in
 #use "slackware64-current/d/gcc/wb:core.ml"
 let mingw_w64_deps = [ binutils; gcc_core ] in
 #use "mingw/mingw-w64/wb:full.ml"
@@ -14,7 +15,7 @@ let mingw_w64_deps = [ binutils; gcc_core ] in
     ~dependencies:[ binutils; gcc_core; mingw_w64_full ]
     ~build:2
   in
-  let gcc_dependencies = [ binutils; mingw_w64_full; winpthreads; gcc_core ] in
+  let gcc_full_dependencies = [ binutils; mingw_w64_full; winpthreads; gcc_core ] in
 #use "slackware64-current/d/gcc/wb:full.ml"
 #use "mingw/flexdll/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"

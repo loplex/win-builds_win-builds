@@ -98,8 +98,8 @@ module Git = struct
       try run (git `Remote [ "add"; remote; uri]) () with _ -> ()
     ) remote
 
-  let version ~sources =
-    match List.find_all (function T _ -> true | _ -> false) sources with
+  let version ~r =
+    match List.find_all (function T _ -> true | _ -> false) r.sources with
     | [ T { dir; obj } ] -> (
         match obj with
         | Some obj -> run_and_read (invoke ~dir `RevParseShort [ obj ])
@@ -118,7 +118,7 @@ module Git = struct
     | Some obj -> (
         may (fun uri -> remote_add ~uri ~git ~dir ?remote ()) uri;
         fetch ~remote ~git;
-        let version = run_and_read (invoke ~dir `RevParseShort [ obj ]) in
+        let version = run_and_read (git `RevParseShort [ obj ]) in
         let subst = substitute_variables ~dict: [ "VERSION", version ] in
         let tarball = subst tarball in
         let dir = subst dir in
@@ -197,16 +197,21 @@ let get =
   let chan_send = Event.new_channel () in
   let chan_ack = Event.new_channel () in
   ignore (Thread.create (fun () ->
+    let past_requests = ref [] in
     while true do
       Event.sync (Event.send chan_ack (
         try
-          let p = Event.sync (Event.receive chan_send) in
-          ListLabels.iter p.sources ~f:(fun x -> match x with
-            | WB _ -> ()
-            | Tarball y -> Tarball.get ~package:p.package y
-            | Git.T y -> Git.get y
-            | Patch y -> Patch.get y
-            | _ -> assert false
+          let (c, r) as p = Event.sync (Event.receive chan_send) in
+          if not (List.mem p !past_requests) then (
+            Lib.log Lib.dbg "Getting sources for %S.\n%!" c.package;
+            ListLabels.iter r.sources ~f:(function
+              | WB _ -> ()
+              | Tarball y -> Tarball.get ~package:c.package y
+              | Git.T y -> Git.get y
+              | Patch y -> Patch.get y
+              | _ -> assert false
+            );
+            past_requests := p :: !past_requests;
           );
           None
         with exn ->

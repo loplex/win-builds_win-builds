@@ -123,42 +123,53 @@ end
 module Package = struct
   type source = ..
 
-  type t = {
+  type real = {
     dir : string;
+    version : string;
+    build : int;
+    sources : source list;
+    outputs : string list;
+    prefix : Prefix.t;
+  }
+
+  type common = {
     package : string;
     variant : string option;
     dependencies : t list;
     native_deps : string list;
     cross_deps : string list;
-    version : string;
-    build : int;
-    sources : source list;
-    outputs : string list;
-    devshell : bool;
-    prefix : Prefix.t;
     mutable to_build : bool;
+    devshell : bool;
   }
+
+  and t =
+    | Real of (common * real)
+    | Virtual of common
+    | Provides of (common * t list)
 
   let substitute_variables ~dict s =
     let f k =
       try
+        Lib.log Lib.dbg "Looking for assoc for %S in %S.\n%!" k s;
         List.assoc k dict
       with Not_found as exn ->
-        Lib.log Lib.cri "Couldn't resolve variable %S.\n%!" k;
+        Lib.log Lib.cri "Couldn't resolve variable %S in %S.\n%!" k s;
         raise exn
     in
     let b = Buffer.create (String.length s) in
     Buffer.add_substitute b f s;
-    Buffer.contents b
+    let s = Buffer.contents b in
+    Lib.log Lib.dbg "Result: %S.\n%!" s;
+    s
 
   let logs_yyoutput ~nickname =
     let rel_path l = List.fold_left (^/) "" (Lib.work_dir :: l) in
     (rel_path [ "logs"; nickname ]), (rel_path [ "packages"; nickname ])
 
-  let to_name p =
-    match p.variant with
-    | Some variant -> String.concat ":" [ p.package; variant ]
-    | None -> p.package
+  let c_of = function
+    | Real (c, _) -> c
+    | Virtual c -> c
+    | Provides (c, _) -> c
 end
 
 module Builder = struct
@@ -229,9 +240,8 @@ module Builder = struct
     ])
 
   let shall_build builder_name =
-    let l = try Sys.getenv (String.uppercase builder_name) with Not_found -> "" in
     let h = Hashtbl.create 200 in
-    ListLabels.iter (Str.split (Str.regexp ",") l) ~f:(fun e ->
+    ListLabels.iter (set_of_env (String.uppercase builder_name)) ~f:(fun e ->
       match Str.split (Str.regexp ":") e with
       | [ n ] -> Hashtbl.add h (n, None, false) true
       | [ n; "devshell" ] -> Hashtbl.add h (n, None, true) true
@@ -240,5 +250,7 @@ module Builder = struct
       | [ ] -> ()
       | _ -> assert false
     );
-    fun p -> Hashtbl.mem h Package.(p.package, p.variant, p.devshell)
+    fun p ->
+      let c = Package.c_of p in
+      Hashtbl.mem h Package.(c.package, c.variant, c.devshell)
 end
