@@ -203,7 +203,7 @@ let get =
         try
           let (c, r) as p = Event.sync (Event.receive chan_send) in
           if not (List.mem p !past_requests) then (
-            Lib.log Lib.dbg "Getting sources for %S.\n%!" c.package;
+            Lib.log Lib.inf "Getting sources for %S.\n%!" c.package;
             ListLabels.iter r.sources ~f:(function
               | WB _ -> ()
               | Tarball y -> Tarball.get ~package:c.package y
