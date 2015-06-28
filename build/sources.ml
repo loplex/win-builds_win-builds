@@ -268,3 +268,11 @@ let substitute_variables_sources ~dir ~package ~dict source =
         prefix = subst prefix;
       })
   | x -> x
+
+let chose_source =
+  let l = set_of_env "FROM_VCS" in
+  fun ~name ~vcs ~default ->
+    if List.mem name l then
+      vcs
+    else
+      default
