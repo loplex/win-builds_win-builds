@@ -12,10 +12,10 @@ get_versions() {
 
 PRE="$(get_versions)"
 
-make -C win-builds CROSS_TOOLCHAIN=mingw-w64:full-git
+make -C win-builds CROSS_TOOLCHAIN='gcc:full' FROM_VCS='mingw-w64'
 
 POST="$(get_versions)"
 
 if [ x"${PRE}" != x"${POST}" ]; then
-  make -C win-builds WINDOWS=all
+  make -C win-builds WINDOWS='all' FROM_VCS='mingw-w64'
 fi
