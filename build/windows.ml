@@ -20,8 +20,8 @@ let do_adds builder =
 #use "slackware64-current/d/autoconf/wb.ml"
 #use "slackware64-current/d/libtool/wb.ml"
 #use "slackware64-current/d/automake/wb.ml"
-#use "mingw/mingw-w64/wb:common.ml"
-#use "mingw/mingw-w64/wb:headers.ml"
+#use "mingw/mingw-w64/wb-common.ml"
+#use "mingw/mingw-w64/wb-headers.ml"
   let mingw_w64_full = mingw_w64_add ("mingw-w64", Some "full")
     ~build:2
     ~dependencies:[]
@@ -46,21 +46,21 @@ let do_adds builder =
       ~sources:gettext_sources
     in
 
-#use "slackware64-current/a/xz/wb:common.ml"
+#use "slackware64-current/a/xz/wb-common.ml"
     let xz = xz_add ~variant:"regular" ~dependencies:[ gettext ] in
 
-#use "slackware64-current/l/zlib/wb:regular.ml"
+#use "slackware64-current/l/zlib/wb-regular.ml"
 #use "slackware64-current/l/libjpeg-turbo/wb.ml"
-#use "slackware64-current/l/expat/wb:regular.ml"
+#use "slackware64-current/l/expat/wb-regular.ml"
 #use "slackware64-current/l/libpng/wb.ml"
 #use "slackware64-current/l/freetype/wb.ml"
-#use "slackware64-current/x/fontconfig/wb:common.ml"
+#use "slackware64-current/x/fontconfig/wb-common.ml"
 
     let fontconfig = fontconfig_add ~variant:"regular" ~dependencies:[ freetype; expat ] in
 
 #use "slackware64-current/l/giflib/wb.ml"
 #use "slackware64-current/l/libtiff/wb.ml"
-#use "slackbuilds.org/development/lua/wb:regular.ml"
+#use "slackbuilds.org/development/lua/wb-regular.ml"
 #use "slackware64-current/n/ca-certificates/wb.ml"
 #use "slackware64-current/n/openssl/wb.ml"
 #use "slackware64-current/l/gmp/wb.ml"
@@ -74,7 +74,7 @@ let do_adds builder =
 #use "slackware64-current/l/pcre/wb.ml"
 #use "slackware64-current/l/libffi/wb.ml"
 #use "slackware64-current/l/glib2/wb.ml"
-#use "slackware64-current/d/pkg-config/wb:common.ml"
+#use "slackware64-current/d/pkg-config/wb-common.ml"
 #use "slackware64-current/d/pkg-config/wb.ml"
 #use "slackware64-current/l/cairo/wb.ml"
 #use "slackware64-current/l/atk/wb.ml"
@@ -108,7 +108,7 @@ let do_adds builder =
 #use "slackware64-current/l/libtheora/wb.ml"
 #use "slackware64-current/l/fribidi/wb.ml"
 #use "slackbuilds.org/development/check/wb.ml"
-#use "slackware64-current/a/dbus/wb:common.ml"
+#use "slackware64-current/a/dbus/wb-common.ml"
 
     let dbus = dbus_add ~variant:"regular" ~dependencies:[ expat ] in
 
@@ -118,9 +118,9 @@ let do_adds builder =
     let binutils_dependencies = [ zlib ] in
 #use "slackware64-current/d/binutils/wb.ml"
     let gcc_core_dependencies = [] in
-#use "slackware64-current/d/gcc/wb:core.ml"
+#use "slackware64-current/d/gcc/wb-core.ml"
     let gcc_full_dependencies = [ binutils; mpfr; gmp; libmpc; winpthreads ] in
-#use "slackware64-current/d/gcc/wb:full.ml"
+#use "slackware64-current/d/gcc/wb-full.ml"
 
 #use "slackbuilds.org/multimedia/x264/wb.ml"
 #use "slackware64-current/l/libao/wb.ml"
@@ -134,12 +134,12 @@ let do_adds builder =
 #use "slackware64-current/l/gstreamer/wb.ml"
 #use "slackware64-current/l/gst-plugins-base/wb.ml"
 #use "slackware64-current/l/gst-plugins-good/wb.ml"
-#use "slackbuilds.org/libraries/efl/wb:common.ml"
-#use "slackbuilds.org/libraries/efl/wb:common-git.ml"
-#use "slackbuilds.org/libraries/efl/wb:regular.ml"
-#use "slackbuilds.org/libraries/efl/wb:regular-git.ml"
-#use "slackbuilds.org/libraries/elementary/wb:regular.ml"
-#use "slackbuilds.org/libraries/elementary/wb:regular-git.ml"
+#use "slackbuilds.org/libraries/efl/wb-common.ml"
+#use "slackbuilds.org/libraries/efl/wb-common-git.ml"
+#use "slackbuilds.org/libraries/efl/wb-regular.ml"
+#use "slackbuilds.org/libraries/efl/wb-regular-git.ml"
+#use "slackbuilds.org/libraries/elementary/wb-regular.ml"
+#use "slackbuilds.org/libraries/elementary/wb-regular-git.ml"
 #use "slackware64-current/d/gdb/wb.ml"
 #use "slackware64-current/l/libmad/wb.ml"
 #use "slackware64-current/l/libid3tag/wb.ml"
@@ -152,7 +152,7 @@ let do_adds builder =
 #use "slackbuilds.org/libraries/libsigc++/wb.ml"
 #use "slackbuilds.org/libraries/jansson/wb.ml"
 #use "slackbuilds.org/libraries/lame/wb.ml"
-#use "slackware64-current/l/qt/wb:regular.ml"
+#use "slackware64-current/l/qt/wb-regular.ml"
 
     (* let opencore_amr = add ("opencore-amr", None)
       ~dir:"slackbuilds.org/audio"

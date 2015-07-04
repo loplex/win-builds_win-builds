@@ -4,19 +4,19 @@ let do_adds builder =
 
   let binutils_dependencies = [] in
 #use "slackware64-current/d/binutils/wb.ml"
-#use "mingw/mingw-w64/wb:common.ml"
-#use "mingw/mingw-w64/wb:headers.ml"
+#use "mingw/mingw-w64/wb-common.ml"
+#use "mingw/mingw-w64/wb-headers.ml"
   let gcc_core_dependencies = [ binutils; mingw_w64_headers ] in
-#use "slackware64-current/d/gcc/wb:core.ml"
+#use "slackware64-current/d/gcc/wb-core.ml"
 let mingw_w64_deps = [ binutils; gcc_core ] in
-#use "mingw/mingw-w64/wb:full.ml"
+#use "mingw/mingw-w64/wb-full.ml"
 (* pseh *)
   let winpthreads = mingw_w64_add ("winpthreads", None)
     ~dependencies:[ binutils; gcc_core; mingw_w64_full ]
     ~build:2
   in
   let gcc_full_dependencies = [ binutils; mingw_w64_full; winpthreads; gcc_core ] in
-#use "slackware64-current/d/gcc/wb:full.ml"
+#use "slackware64-current/d/gcc/wb-full.ml"
 #use "mingw/flexdll/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
   let ocaml = ocaml_add
