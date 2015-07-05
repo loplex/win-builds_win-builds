@@ -1,5 +1,6 @@
 include ../Makefile.data
 
+export PATH := $(PREFIX)/bin:$(PATH)
 export LIBRARY_PATH:=$(PREFIX)/lib:$(LIBRARY_PATH)
 export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 
