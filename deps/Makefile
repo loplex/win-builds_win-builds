@@ -88,6 +88,8 @@ libarchive: $(NEEDS_XZ)
 ocaml: $(NEEDS_MAKE) $(NEEDS_XZ)
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-$(OCAML_VERSION),tar.xz)
 	(cd ocaml-$(OCAML_VERSION) \
+		&& sed -i -e 's/_execvpe proc args/\0 env/' -e 's/let execvpe proc args/\0 env/' otherlibs/threads/unix.ml \
+		&& $(call P,ocaml/ocaml_execvpe) \
 		&& ./configure -no-debugger -prefix $(PREFIX) \
 		&& $(MAKE) -j1 world.opt \
 		&& $(MAKE) -j1 install)
