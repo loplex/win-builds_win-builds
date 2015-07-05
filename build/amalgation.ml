@@ -1,5 +1,5 @@
 let re_use = Str.regexp "[ ]*#use \"\\(.*\\)\""
-let re_variant = Str.regexp ".*:\\(.*\\)"
+let re_variant = Str.regexp "wb-\\(.*\\)"
 let re_extras_hook = Str.regexp "[ ]*#extras"
 let re_extras = Str.regexp ","
 
