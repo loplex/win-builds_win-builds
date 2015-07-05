@@ -163,7 +163,7 @@ module Package = struct
     s
 
   let logs_yyoutput ~nickname =
-    let rel_path l = List.fold_left (^/) "" (Lib.work_dir :: l) in
+    let rel_path l = List.fold_left (^/) Lib.work_dir l in
     (rel_path [ "logs"; nickname ]), (rel_path [ "packages"; nickname ])
 
   let c_of = function
