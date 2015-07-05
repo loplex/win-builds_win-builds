@@ -34,7 +34,7 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     "bash"; "-cex";
     String.concat "; " [
       sp "cd %S" dir;
-      sp "export DESCR=\"$(sed -n 's;^[^:]\\+: ;; c' slack-desc | sed -e 's;\";\\\\\\\\\";g' -e 's;/;\\\\/;g' | tr '\\n' ' ')\"";
+      sp "export DESCR=\"$(sed -n 's;^[^:]\\+: ;; p' slack-desc | sed -e 's;\";\\\\\\\\\";g' -e 's;/;\\\\/;g' | tr '\\n' ' ')\"";
       sp "export PREFIX=\"$(echo \"${YYPREFIX}\" | sed 's;^/;;')\"";
       sp "export VERSION=%S" r.version;
       sp "export BUILD=%d" r.build;
