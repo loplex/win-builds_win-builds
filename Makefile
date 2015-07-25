@@ -29,7 +29,8 @@ LXC_EXECUTE =
 build:
 
 endif
-	$(LXC_EXECUTE) $$(which gmake) build_real \
+	$(LXC_EXECUTE) $$(which $$(basename $$(echo "$(MAKE)" | cut -f1 -d' '))) \
+		build_real \
 		NATIVE_TOOLCHAIN="$(NATIVE_TOOLCHAIN)" \
 		CROSS_TOOLCHAIN_32="$(CROSS_TOOLCHAIN),$(CROSS_TOOLCHAIN_32)" \
 		CROSS_TOOLCHAIN_64="$(CROSS_TOOLCHAIN),$(CROSS_TOOLCHAIN_64)" \
