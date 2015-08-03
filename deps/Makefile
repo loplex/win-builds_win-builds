@@ -103,8 +103,7 @@ bash:
 
 tar: $(NEEDS_XZ)
 	$(call DOWNLOAD_AND_EXTRACT,tar-$(TAR_VERSION),tar.xz)
-	export FORCE_UNSAFE_CONFIGURE=1; \
-	$(call BUILD_AUTOTOOLS,tar,$(TAR_VERSION),)
+	export FORCE_UNSAFE_CONFIGURE=1; $(call BUILD_AUTOTOOLS,tar,$(TAR_VERSION),)
 
 patch:
 	$(call DOWNLOAD_AND_EXTRACT,patch-$(PATCH_VERSION),tar.bz2)
