@@ -7,6 +7,7 @@ let do_adds builder =
 #use "mingw/mingw-w64/wb-common.ml"
 #use "mingw/mingw-w64/wb-headers.ml"
   let gcc_core_dependencies = [ binutils; mingw_w64_headers ] in
+  let gcc_native_dependencies = [ "mpfr"; "gmp"; "libmpc" ] in
 #use "slackware64-current/d/gcc/wb-core.ml"
 let mingw_w64_deps = [ binutils; gcc_core ] in
 #use "mingw/mingw-w64/wb-full.ml"

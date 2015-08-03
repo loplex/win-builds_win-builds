@@ -118,6 +118,7 @@ let do_adds builder =
     let binutils_dependencies = [ zlib ] in
 #use "slackware64-current/d/binutils/wb.ml"
     let gcc_core_dependencies = [] in
+    let gcc_native_dependencies = [] in
 #use "slackware64-current/d/gcc/wb-core.ml"
     let gcc_full_dependencies = [ binutils; mpfr; gmp; libmpc; winpthreads ] in
 #use "slackware64-current/d/gcc/wb-full.ml"
