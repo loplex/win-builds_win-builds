@@ -3,16 +3,22 @@ include ../Makefile.data
 export LIBRARY_PATH:=$(PREFIX)/lib:$(LIBRARY_PATH)
 export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 
-NEEDS = $(shell $(1) --version | grep '$(2)' >/dev/null 2>/dev/null || echo '$(3)')
-NEEDS_XZ := $(call NEEDS,xz,XZ Utils,xz)
-NEEDS_COREUTILS := $(call NEEDS,cp,GNU coreutils,coreutils)
-NEEDS_PATCH := $(call NEEDS,patch,GNU patch,patch)
-NEEDS_TAR := $(call NEEDS,tar,GNU tar,tar)
-NEEDS_MAKE := $(call NEEDS,make,GNU Make,make)
-NEEDS_SED := $(call NEEDS,sed,GNU sed,sed)
-NEEDS_FINDUTILS := $(call NEEDS,find,GNU findutils,findutils)
-NEEDS_BASH := $(call NEEDS,bash,GNU bash,bash)
-NEEDS_LIBARCHIVE := $(call NEEDS,bsdtar,bsdtar,libarchive)
+NEEDS_FULL = $(shell (set -o pipefail; export PATH=$(PATH); $(1) 2>/dev/null | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
+NEEDS_GNU = $(call NEEDS_FULL,$(1) --version,Free Software Foundation,$(2))
+NEEDS_HEADER = $(call NEEDS_FULL,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
+
+NEEDS_XZ := $(call NEEDS_FULL,xz --version,XZ Utils,xz)
+NEEDS_LIBLZMA := $(call NEEDS_HEADER,lzma.h,liblzma)
+NEEDS_COREUTILS := $(call NEEDS_GNU,cp,coreutils)
+NEEDS_PATCH := $(call NEEDS_GNU,patch,patch)
+NEEDS_TAR := $(call NEEDS_GNU,tar,tar)
+NEEDS_MAKE := $(call NEEDS_GNU,make,make)
+NEEDS_SED := $(call NEEDS_GNU,sed,sed)
+NEEDS_FINDUTILS := $(call NEEDS_GNU,find,findutils)
+NEEDS_BASH := $(call NEEDS_GNU,bash,bash)
+NEEDS_LIBARCHIVE := $(call NEEDS_HEADER,archive.h,libarchive)
+NEEDS_OCAML := $(call NEEDS_FULL,ocaml -version,version 4,ocaml)
+NEEDS_FINDLIB := $(call NEEDS_FULL,ocamlfind list,findlib \+.version: 1.[456],findlib)
 
 PATCHES := $(shell pwd)/patches
 
@@ -43,7 +49,7 @@ P = patch --verbose -p1 < "$(PATCHES)/$(1).patch"
 
 all: $(NEEDS_COREUTILS) $(NEEDS_MAKE) $(NEEDS_SED) $(NEEDS_FINDUTILS) $(NEEDS_PATCH) $(NEEDS_TAR) $(NEEDS_BASH) $(NEEDS_LIBARCHIVE) yypkg
 
-xz:
+xz liblzma:
 	$(call DOWNLOAD_AND_EXTRACT,xz-$(XZ_VERSION),tar.bz2)
 	$(call BUILD_AUTOTOOLS,xz,$(XZ_VERSION),)
 
@@ -81,7 +87,7 @@ patch:
 	$(call DOWNLOAD_AND_EXTRACT,patch-$(PATCH_VERSION),tar.bz2)
 	$(call BUILD_AUTOTOOLS,patch,$(PATCH_VERSION),)
 
-libarchive: $(NEEDS_XZ)
+libarchive: $(NEEDS_LIBLZMA)
 	$(call DOWNLOAD_AND_EXTRACT,libarchive-$(LIBARCHIVE_VERSION),tar.gz)
 	$(call BUILD_AUTOTOOLS,libarchive,$(LIBARCHIVE_VERSION),)
 
@@ -94,14 +100,14 @@ ocaml: $(NEEDS_MAKE) $(NEEDS_XZ)
 		&& $(MAKE) -j1 world.opt \
 		&& $(MAKE) -j1 install)
 
-findlib: ocaml
+findlib: $(NEEDS_OCAML)
 	$(call DOWNLOAD_AND_EXTRACT,findlib-$(FINDLIB_VERSION),tar.gz)
 	(cd findlib-$(FINDLIB_VERSION) \
 		&& ./configure -no-camlp4 \
 		&& $(MAKE) \
 		&& $(MAKE) install)
 
-libocaml: ocaml findlib $(NEEDS_XZ)
+libocaml: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_XZ)
 	for s in exception option lexing plus ipv4_address ipv6_address uri http; do \
 		$(call DOWNLOAD_AND_EXTRACT,libocaml_$${s}.$(LIBOCAML_VERSION),tar.xz) \
 		&& sed -i '/-w @a-4-6-7-9-23-26-27-29-41/ s/@//' \
@@ -112,7 +118,7 @@ libocaml: ocaml findlib $(NEEDS_XZ)
 		(cd libocaml_$${s}.$(LIBOCAML_VERSION) && $(MAKE) && $(MAKE) install); \
 	done
 
-ocaml-fileutils: ocaml findlib
+ocaml-fileutils: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
 	ocamlfind remove fileutils
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-fileutils-$(FILEUTILS_VERSION),tar.gz)
 	cd ocaml-fileutils-$(FILEUTILS_VERSION) \
@@ -120,7 +126,7 @@ ocaml-fileutils: ocaml findlib
 	&& $(call P,fileutils/0002-FileUtil-symlinks-patch-2)
 	$(call BUILD_OASIS,ocaml-fileutils,$(FILEUTILS_VERSION),)
 
-ocaml-archive: ocaml findlib $(NEEDS_LIBARCHIVE)
+ocaml-archive: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_LIBARCHIVE) $(NEEDS_SED)
 	ocamlfind remove archive
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-archive-$(ARCHIVE_VERSION),tar.gz)
 	cd ocaml-archive-$(ARCHIVE_VERSION) \
@@ -131,12 +137,12 @@ ocaml-archive: ocaml findlib $(NEEDS_LIBARCHIVE)
 	&& $(call P,archive/0001-stubs-ARCHIVE_EXTRACT_-MAC_METADATA-NO_HFS_COMPRESSI)
 	$(call BUILD_OASIS,ocaml-archive,$(ARCHIVE_VERSION),--disable-archivelwt --disable-tests --disable-docs)
 
-cryptokit: ocaml findlib
+cryptokit: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
 	ocamlfind remove cryptokit
 	$(call DOWNLOAD_AND_EXTRACT,cryptokit-$(CRYPTOKIT_VERSION),tar.gz)
 	$(call BUILD_OASIS,cryptokit,$(CRYPTOKIT_VERSION),)
 
-yypkg: ocaml findlib libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ)
+yypkg: $(NEEDS_OCAML) $(NEEDS_FINDLIB) libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ)
 	$(call DOWNLOAD_AND_EXTRACT,yypkg-$(YYPKG_VERSION),tar.xz)
 	cd yypkg-$(YYPKG_VERSION) && $(call P,yypkg/0001-Package-new-module-to-print-the-metadata-from-the-gi)
 	cd yypkg-$(YYPKG_VERSION) && $(MAKE) yypkg-no-gui
