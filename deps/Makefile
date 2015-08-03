@@ -112,7 +112,7 @@ patch:
 
 libarchive bsdtar: $(NEEDS_LIBLZMA)
 	$(call DOWNLOAD_AND_EXTRACT,libarchive-$(LIBARCHIVE_VERSION),tar.gz)
-	$(call BUILD_AUTOTOOLS,libarchive,$(LIBARCHIVE_VERSION),)
+	$(call BUILD_AUTOTOOLS,libarchive,$(LIBARCHIVE_VERSION),--disable-bsdcpio --without-zlib --without-xml2 --without-expat --without-openssl --without-nettle --without-lzo2 --without-lzmadec --without-bz2lib --without-zlib)
 
 ocaml: $(NEEDS_MAKE) $(NEEDS_XZ)
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-$(OCAML_VERSION),tar.xz)
