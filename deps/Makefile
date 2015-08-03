@@ -48,6 +48,26 @@ BUILD_OASIS = \
 
 P = patch --verbose -p1 < "$(PATCHES)/$(1).patch"
 
+default: summary
+	sleep 2
+	$(MAKE) -C . all
+
+summary:
+	f() { echo "[$$(echo $$1 | sed -e "s/$$2/X/" -e 's/^$$/ /')] $$2"; }; \
+	echo "Dependencies needed (largest ones):"; \
+	f "$(NEEDS_COREUTILS)" "coreutils"; \
+	f "$(NEEDS_MAKE)" "make"; \
+	f "$(NEEDS_SED)" "sed"; \
+	f "$(NEEDS_FINDUTILS)" "findutils"; \
+	f "$(NEEDS_PATCH)" "patch"; \
+	f "$(NEEDS_TAR)" "tar"; \
+	f "$(NEEDS_BASH)" "bash"; \
+	f "$(NEEDS_XZ)" "xz"; \
+	f "$(NEEDS_LIBLZMA)" "liblzma"; \
+	f "$(NEEDS_LIBARCHIVE)" "libarchive"; \
+	f "$(NEEDS_OCAML)" "ocaml"; \
+	f "$(NEEDS_FINDLIB)" "findlib"
+
 all: $(NEEDS_COREUTILS) $(NEEDS_MAKE) $(NEEDS_SED) $(NEEDS_FINDUTILS) $(NEEDS_PATCH) $(NEEDS_TAR) $(NEEDS_BASH) $(NEEDS_LIBARCHIVE) yypkg
 
 xz liblzma:
