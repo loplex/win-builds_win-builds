@@ -69,6 +69,8 @@ module Arch = struct
     {
       triplet;
       bits;
+      (* don't set --strip-unneeded since it's not standard and will only be
+       * used for native/cross toolchains and therefore not redistributed *)
       strip = "strip";
       exe_format;
     }
@@ -76,14 +78,14 @@ module Arch = struct
   let windows_32 = {
     triplet = "i686-w64-mingw32";
     bits = 32;
-    strip = "i686-w64-mingw32-strip";
+    strip = "i686-w64-mingw32-strip --strip-unneeded";
     exe_format = "PE";
   }
 
   let windows_64 = {
     triplet = "x86_64-w64-mingw32";
     bits = 64;
-    strip = "x86_64-w64-mingw32-strip";
+    strip = "x86_64-w64-mingw32-strip --strip-unneeded";
     exe_format = "PE";
   }
 end
