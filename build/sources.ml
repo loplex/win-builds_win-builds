@@ -148,7 +148,7 @@ module Tarball = struct
         let res = (try
           run ~stdin:pipe_read
             [| "sha1sum"; "--status"; "--check"; "--strict" |] ();
-          log dbg "File %S exists and has the right SHA1.\n%!" file;
+          log dbg "File %S exists with the right SHA1.\n%!" file;
           true
         with Failure _ ->
           log dbg "File %S exists and doesn't have the right SHA1.\n%!" file;
