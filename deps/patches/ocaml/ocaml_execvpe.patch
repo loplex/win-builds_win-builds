@@ -1,21 +1,28 @@
---- ocaml-4.02.2-rc1/otherlibs/unix/execvp.c.old        2015-06-13 22:58:09.725577900 +0200
-+++ ocaml-4.02.2-rc1/otherlibs/unix/execvp.c    2015-06-13 22:58:38.102027400 +0200
-@@ -34,14 +34,12 @@
+--- ocaml-4.02.1/otherlibs/unix/execvp.c.old	2015-08-03 13:36:35.901187880 +0200
++++ ocaml-4.02.1/otherlibs/unix/execvp.c	2015-08-03 13:48:46.804624664 +0200
+@@ -33,6 +33,16 @@
+ 
  CAMLprim value unix_execvpe(value path, value args, value env)
  {
-   char ** argv;
--  char ** saved_environ;
++#if defined(__CYGWIN__) || defined(_GNU_SOURCE)
++  char ** argv;
 +  char ** env_c;
-   argv = cstringvect(args);
--  saved_environ = environ;
--  environ = cstringvect(env);
--  (void) execvp(String_val(path), argv);
++  argv = cstringvect(args);
 +  env_c = cstringvect(env);
 +  (void) execvpe(String_val(path), argv, env_c);
-   stat_free((char *) argv);
--  stat_free((char *) environ);
--  environ = saved_environ;
++  stat_free((char *) argv);
 +  stat_free((char *) env_c);
++  uerror("execvpe", path);
++#else
+   char ** argv;
+   char ** saved_environ;
+   argv = cstringvect(args);
+@@ -43,6 +53,7 @@
+   stat_free((char *) environ);
+   environ = saved_environ;
    uerror("execvp", path);
++#endif
    return Val_unit;                  /* never reached, but suppress warnings */
-                                 /* from smart compilers */
+-                                /* from smart compilers */
++                                    /* from smart compilers */
+ }
