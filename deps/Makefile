@@ -157,7 +157,8 @@ ocaml-archive: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_LIBARCHIVE) $(NEEDS_SED)
 	&& $(call P,archive/0002-Bind-extract-set_pathname-and-read_open_memory-strin) \
 	&& $(call P,archive/0003-stubs-bind-archive_entry_-set_-pathname-through-a-ma) \
 	&& $(call P,archive/0004-Bind-archive_entry_-set_-hard-sym-link-and-archive_e) \
-	&& $(call P,archive/0001-stubs-ARCHIVE_EXTRACT_-MAC_METADATA-NO_HFS_COMPRESSI)
+	&& $(call P,archive/0001-stubs-ARCHIVE_EXTRACT_-MAC_METADATA-NO_HFS_COMPRESSI) \
+	&& sed -i 's/malloc\.h/stdlib\.h/' src/Archive_stub.c
 	$(call BUILD_OASIS,ocaml-archive,$(ARCHIVE_VERSION),--disable-archivelwt --disable-tests --disable-docs)
 
 cryptokit: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
