@@ -17,6 +17,7 @@ NEEDS_SED := $(call NEEDS_GNU,sed,sed)
 NEEDS_FINDUTILS := $(call NEEDS_GNU,find,findutils)
 NEEDS_BASH := $(call NEEDS_GNU,bash,bash)
 NEEDS_LIBARCHIVE := $(call NEEDS_HEADER,archive.h,libarchive)
+NEEDS_BSDTAR := $(call NEEDS_FULL,bsdtar --version,libarchive,bsdtar)
 NEEDS_OCAML := $(call NEEDS_FULL,ocaml -version,version 4,ocaml)
 NEEDS_FINDLIB := $(call NEEDS_FULL,ocamlfind list,findlib \+.version: 1.[456],findlib)
 
@@ -65,6 +66,7 @@ summary:
 	f "$(NEEDS_XZ)" "xz"; \
 	f "$(NEEDS_LIBLZMA)" "liblzma"; \
 	f "$(NEEDS_LIBARCHIVE)" "libarchive"; \
+	f "$(NEEDS_BSDTAR)" "bsdtar"; \
 	f "$(NEEDS_OCAML)" "ocaml"; \
 	f "$(NEEDS_FINDLIB)" "findlib"
 
@@ -108,7 +110,7 @@ patch:
 	$(call DOWNLOAD_AND_EXTRACT,patch-$(PATCH_VERSION),tar.bz2)
 	$(call BUILD_AUTOTOOLS,patch,$(PATCH_VERSION),)
 
-libarchive: $(NEEDS_LIBLZMA)
+libarchive bsdtar: $(NEEDS_LIBLZMA)
 	$(call DOWNLOAD_AND_EXTRACT,libarchive-$(LIBARCHIVE_VERSION),tar.gz)
 	$(call BUILD_AUTOTOOLS,libarchive,$(LIBARCHIVE_VERSION),)
 
