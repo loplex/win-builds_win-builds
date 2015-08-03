@@ -28,10 +28,11 @@ DOWNLOAD_AND_EXTRACT = \
 	&& if ! [ -e "tarballs/$(1).$(2)" ]; then \
 		(cd tarballs && curl "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)") \
 	fi \
-	&& (tar xzf "tarballs/$(1).$(2)" \
-	  || (xz -d < "tarballs/$(1).$(2)" | tar xf - ) \
-	  || tar xjf "tarballs/$(1).$(2)")
-
+	&& (case $(2) in \
+	  "tar.gz"|"tgz") tar xzf "tarballs/$(1).$(2)";; \
+	  "tar.bz2"|"tbz2") tar xjf "tarballs/$(1).$(2)";; \
+	  "tar.xz"|"txz") xz -d < "tarballs/$(1).$(2)" | tar xf - ;; \
+	esac)
 
 BUILD_AUTOTOOLS = \
 	cd $(1)-$(2) \
