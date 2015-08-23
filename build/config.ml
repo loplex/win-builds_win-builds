@@ -149,6 +149,11 @@ module Package = struct
     | Virtual of common
     | Provides of (common * t list)
 
+  let to_name c =
+    match c.variant with
+    | Some variant -> String.concat ":" [ c.package; variant ]
+    | None -> c.package
+
   let substitute_variables ~dict s =
     let f k =
       try

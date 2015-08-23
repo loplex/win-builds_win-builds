@@ -6,11 +6,6 @@ open Sources
 
 open Lib
 
-let to_name c =
-  match c.variant with
-  | Some variant -> String.concat ":" [ c.package; variant ]
-  | None -> c.package
-
 let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
 
 let dict0 ~builder ~p:(c, (r : Config.Package.real)) =
@@ -48,27 +43,20 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     ]
   |] ()
 
-let build_one_package ~builder ~outputs ~env ~p:((c, r) as p) =
-  let log =
-    let filename = builder.logs ^/ (to_name c) in
-    let flags = [ Unix.O_RDWR; Unix.O_CREAT; Unix.O_TRUNC ] in
-    Unix.openfile filename flags 0o644
-  in
+let build_one_package ~builder ~outputs ~env ~p:((c, r) as p) ~log =
   let run command = run ~stdout:log ~stderr:log ~env command in
   (try run_build_shell ~devshell:false ~run ~p with e ->
     List.iter (fun output -> try Unix.unlink output with _ -> ()) outputs;
-    Unix.close log;
     raise e
   );
   ListLabels.iter outputs ~f:(fun output ->
     run [| "yypkg"; "--upgrade"; "--install-new"; output |] ()
-  );
-  Unix.close log
+  )
 
 let build_one_devshell ~env ~p =
   run_build_shell ~devshell:true ~run:(run ~env) ~p
 
-let build_one ~env ~builder ~p:((c, r) as p) =
+let build_one ~env ~builder ~log ~p:((c, r) as p) =
   let dict0 = dict0 ~builder ~p in
   let p_update ~dict ~p:(c, r) =
     c, {
@@ -107,7 +95,7 @@ let build_one ~env ~builder ~p:((c, r) as p) =
       )
       else (
         progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
-        build_one_package ~builder ~outputs ~env ~p)
+        build_one_package ~builder ~outputs ~env ~p ~log)
     )
   )
 
