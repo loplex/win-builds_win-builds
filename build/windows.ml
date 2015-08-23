@@ -153,7 +153,6 @@ let do_adds builder =
 #use "slackbuilds.org/libraries/libsigc++/wb.ml"
 #use "slackbuilds.org/libraries/jansson/wb.ml"
 #use "slackbuilds.org/libraries/lame/wb.ml"
-#use "slackware64-current/l/qt/wb-regular.ml"
 
     (* let opencore_amr = add ("opencore-amr", None)
       ~dir:"slackbuilds.org/audio"
@@ -347,7 +346,6 @@ let do_adds builder =
         gendef; genidl; genpeimg; widl; libmangle; winstorecompat;
         babl; gegl; gimp; gstreamer1; gst1_plugins_good; bullet;
         json_c;
-        qt;
         check;
       ]
       ~version:"0.0.0"
