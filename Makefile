@@ -5,7 +5,7 @@ default: build
 build_real:
 	cd .. \
 	&& ocaml str.cma ./win-builds/build/amalgation.ml \
-	| LANG="C" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" \
+	| LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" \
 	  ocaml unix.cma str.cma -I +threads threads.cma -stdin $(VERSION)
 
 ifneq ($(WITH_LXC),)
