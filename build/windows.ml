@@ -102,6 +102,7 @@ let do_adds builder =
 #use "slackware64-current/ap/sqlite/wb.ml"
 #use "slackware64-current/l/libsoup/wb.ml"
 #use "slackware64-current/d/gperf/wb.ml"
+#use "slackware64-current/d/bison/wb.ml"
 #use "slackware64-current/l/mpfr/wb.ml"
 #use "slackware64-current/l/libmpc/wb.ml"
 #use "slackware64-current/l/libogg/wb.ml"
