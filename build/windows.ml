@@ -85,6 +85,7 @@ let do_adds builder =
 #use "slackware64-current/l/gdk-pixbuf2/wb.ml"
 #use "slackware64-current/l/gtk+2/wb.ml"
 #use "slackware64-current/l/gtk+3/wb.ml"
+#use "slackware64-current/l/adwaita-icon-theme/wb.ml"
 #use "slackware64-current/xap/gucharmap/wb.ml"
 #use "slackware64-current/l/glib-networking/wb.ml"
 #use "slackware64-current/l/libxml2/wb.ml"
@@ -349,7 +350,7 @@ let do_adds builder =
         gendef; genidl; genpeimg; widl; libmangle; winstorecompat;
         babl; gegl; gimp; gstreamer1; gst1_plugins_good; bullet;
         json_c;
-        check; boost; vlc; tre;
+        check; bison; boost; vlc; tre; adwaita_icon_theme;
       ]
       ~version:"0.0.0"
       ~build:1
