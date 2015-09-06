@@ -349,7 +349,7 @@ let do_adds builder =
         gendef; genidl; genpeimg; widl; libmangle; winstorecompat;
         babl; gegl; gimp; gstreamer1; gst1_plugins_good; bullet;
         json_c;
-        check;
+        check; boost; vlc; tre;
       ]
       ~version:"0.0.0"
       ~build:1
