@@ -93,7 +93,7 @@ let do_adds builder =
     let gettext_tools = add ("gettext-tools", None)
       ~dir:"slackware64-current/d"
       (* check that it indeed depends on gettext *)
-      ~dependencies:[ libcroco; gettext ]
+      ~dependencies:[ libcroco; gettext; glib2; libxml2; expat; (* unistring; libpth *) ]
       ~version:gettext_version
       ~build:gettext_build
       ~sources:gettext_sources
