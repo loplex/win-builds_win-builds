@@ -95,6 +95,8 @@ let build_one ~env ~builder ~log ~p:((c, r) as p) =
       )
       else (
         progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
+        ignore (Unix.lseek log 0 Unix.SEEK_SET);
+        Unix.ftruncate log 0;
         build_one_package ~builder ~outputs ~env ~p ~log)
     )
   )

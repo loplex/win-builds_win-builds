@@ -5,7 +5,7 @@ open Lib
 
 let log ~builder ~p:((c, r) as p) =
   let path = builder.logs ^/ (to_name c) in
-  path, Unix.openfile path [ Unix.O_RDWR; Unix.O_CREAT; Unix.O_TRUNC ] 0o644
+  path, Unix.openfile path [ Unix.O_RDWR; Unix.O_CREAT; ] 0o644
 
 let build ~failer builder =
   let did_something = ref false in
