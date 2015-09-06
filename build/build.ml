@@ -24,7 +24,8 @@ let build ~failer builder =
           (if not (try Worker.build_one ~builder ~env ~p ~log:log_fd; true with _ -> false) then (
             failer := true;
             Lib.(log cri
-              "[%s] Build of %s failed; read and/or share the build log at:\n  %S.\n"
+              "\n[%s] *** ERROR ***\n[%s] Build of %s failed; read and/or share the build log at:\n  %S\n\n%!"
+              builder.prefix.nickname
               builder.prefix.nickname
               (to_name c)
               log_path
@@ -33,7 +34,10 @@ let build ~failer builder =
           else (
             did_something := true;
             if !failer then
-              prerr_endline "Aborting because another thread did so."
+              Lib.(log cri
+                "[%s] Aborting because another thread did so.\n%!"
+                builder.prefix.nickname
+              )
             else
               aux tl
           ));
