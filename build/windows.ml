@@ -26,7 +26,7 @@ let do_adds builder =
     ~build:2
     ~dependencies:[]
   in
-  let winpthreads = mingw_w64_add ("mingw-w64", None)
+  let winpthreads = mingw_w64_add ("winpthreads", None)
     ~dependencies:[]
     ~build:2
   in
