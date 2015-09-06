@@ -191,6 +191,7 @@ let do_adds builder =
 #use "slackware64-current/l/babl/wb.ml"
 #use "slackware64-current/l/gegl/wb.ml"
 #use "slackware64-current/xap/gimp/wb.ml"
+#use "slackbuilds.org/multimedia/vlc/wb.ml"
 #use "slackware64-current/l/boost/wb.ml"
 #use "mingw/zz_config/wb.ml"
 
