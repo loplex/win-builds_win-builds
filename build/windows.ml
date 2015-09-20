@@ -193,6 +193,11 @@ let do_adds builder =
 #use "slackware64-current/l/gegl/wb.ml"
 #use "slackware64-current/xap/gimp/wb.ml"
 #use "slackbuilds.org/multimedia/vlc/wb.ml"
+#use "mingw/tre/wb.ml"
+#use "slackware64-current/l/db48/wb.ml"
+#use "slackware64-current/l/ncurses/wb.ml"
+#use "slackware64-current/l/readline/wb.ml"
+#use "slackware64-current/d/python/wb.ml"
 #use "slackware64-current/l/boost/wb.ml"
 #use "mingw/zz_config/wb.ml"
 
@@ -350,7 +355,8 @@ let do_adds builder =
         gendef; genidl; genpeimg; widl; libmangle; winstorecompat;
         babl; gegl; gimp; gstreamer1; gst1_plugins_good; bullet;
         json_c;
-        check; bison; boost; vlc; tre; adwaita_icon_theme;
+        check; bison; python; boost; vlc; tre; adwaita_icon_theme; tre;
+        readline; ncurses
       ]
       ~version:"0.0.0"
       ~build:1
@@ -384,36 +390,6 @@ let do_adds builder =
       ~build:1
       ~sources:[
         Tarball ("${PACKAGE}-${VERSION}.tar.xz", "1869ff09b522b9857f242ab4b06c5e115f46ff14");
-      ]
-    in
-
-    let _pdcurses = add ("PDCurses", None)
-      ~dir:"mingw"
-      ~dependencies:[]
-      ~version:"3.4"
-      ~build:1
-      ~sources:[
-        Tarball ("${PACKAGE}-${VERSION}.tar.gz", "e36684442a6171cc3a5165c8c49c70f67db7288c");
-      ]
-    in
-
-    let _readline = add ("readline", None)
-      ~dir:"slackware64-current/l"
-      ~dependencies:[ _pdcurses ]
-      ~version:"5.2"
-      ~build:1
-      ~sources:[
-        Patch "${PACKAGE}-${VERSION}.tar.bz2";
-      ]
-    in
-
-    let _wineditline = add ("wineditline", None)
-      ~dir:"mingw"
-      ~dependencies:[]
-      ~version:"2.101"
-      ~build:1
-      ~sources:[
-        Tarball ("${PACKAGE}-${VERSION}.tar.bz2", "7943ffde32830adff5e70aec76da78899d1e20ae");
       ]
     in
 
