@@ -355,7 +355,7 @@ let do_adds builder =
         gendef; genidl; genpeimg; widl; libmangle; winstorecompat;
         babl; gegl; gimp; gstreamer1; gst1_plugins_good; bullet;
         json_c;
-        check; bison; python; boost; vlc; tre; adwaita_icon_theme; tre;
+        check; bison; python; boost; vlc; tre; (* adwaita_icon_theme; *) tre;
         readline; ncurses
       ]
       ~version:"0.0.0"
