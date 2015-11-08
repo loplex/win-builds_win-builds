@@ -19,9 +19,18 @@ let build ~failer builder =
       | Virtual { package = "download" } :: tl ->
           run ~env [| "yypkg"; "--web"; "--auto"; "yes" |] ();
           aux tl
-      | Real ((c, _) as p) :: tl ->
+      | Real ((c, _) as p) :: tl -> (
           let log_path, log_fd = log ~p ~builder in
-          (if not (try Worker.build_one ~builder ~env ~p ~log:log_fd; true with _ -> false) then (
+          try
+            did_something :=
+              (Worker.build_one ~builder ~env ~p ~log:log_fd) || !did_something;
+            if !failer then
+              Lib.log Lib.cri
+                "[%s] Aborting because another thread did so.\n%!"
+                builder.prefix.nickname
+            else
+              aux tl
+          with _ -> (
             failer := true;
             Lib.(log cri
               "\n[%s] *** ERROR ***\n[%s] Build of %s failed; read and/or share the build log at:\n  %S\n\n%!"
@@ -29,19 +38,10 @@ let build ~failer builder =
               builder.prefix.nickname
               (to_name c)
               log_path
-            )
-          )
-          else (
-            did_something := true;
-            if !failer then
-              Lib.(log cri
-                "[%s] Aborting because another thread did so.\n%!"
-                builder.prefix.nickname
               )
-            else
-              aux tl
-          ));
+          );
           Unix.close log_fd
+        )
       | Provides _ :: tl
       | Virtual _ :: tl ->
           aux tl

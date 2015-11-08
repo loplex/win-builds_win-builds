@@ -86,20 +86,27 @@ let build_one ~env ~builder ~log ~p:((c, r) as p) =
     )
   );
   if not dryrun then (
-    if c.devshell then
-      build_one_devshell ~env ~p
+    if c.devshell then (
+      build_one_devshell ~env ~p;
+      false
+    )
     else (
       let outputs = List.map ((^/) builder.yyoutput) r.outputs in
       if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
-        progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name c)
+        progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name c);
+        false
       )
       else (
         progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
         ignore (Unix.lseek log 0 Unix.SEEK_SET);
         Unix.ftruncate log 0;
-        build_one_package ~builder ~outputs ~env ~p ~log)
+        build_one_package ~builder ~outputs ~env ~p ~log;
+        true
+      )
     )
   )
+  else
+    false
 
 let build_env builder =
   run ~env:[||] [| "mkdir"; "-p"; builder.yyoutput; builder.logs |] ();
