@@ -3,14 +3,15 @@ open Lib
 module Native_toolchain = struct
   let builder =
     let open Config in
-    let prefix = Arch.(Prefix.t ~build ~host:build ~target:build) in
+    let name = "native_toolchain" in
+    let prefix = Arch.(Prefix.t ~name ~build ~host:build ~target:build) in
     let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
     let open Arch in
     let open Prefix in
     let open Package in
     let open Builder in
     {
-      name = "native_toolchain";
+      name;
       prefix; logs; yyoutput;
       path = Env.Prepend [ prefix.yyprefix ^/ "bin" ];
       pkg_config_path = Env.Prepend [ prefix.libdir ^/ "pkgconfig" ];
@@ -32,7 +33,7 @@ end
 module Cross_toolchain = struct
   let make ~name ~target =
     let open Config in
-    let prefix = Prefix.t ~build:Arch.build ~host:Arch.build ~target in
+    let prefix = Prefix.t ~name ~build:Arch.build ~host:Arch.build ~target in
     let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
     let open Arch in
     let open Prefix in
@@ -77,7 +78,7 @@ end
 module Windows = struct
   let make ~cross ~name ~host =
     let open Config in
-    let prefix = Prefix.t ~build:Arch.build ~host ~target:host in
+    let prefix = Prefix.t ~name ~build:Arch.build ~host ~target:host in
     let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
     cross.Config.Builder.target_prefix <- Some prefix.Prefix.yyprefix;
     let open Arch in
@@ -109,6 +110,11 @@ module Windows = struct
       c_path = Env.Clear;
       library_path = Env.Clear;
     }
+
+  (* builder_ministat needs to come before builder_32 because one will shadow
+   * the other's ${yyprefix_target} and we don't want it the other way round. *)
+  let builder_ministat =
+    make ~name:"windows_ministat" ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
 
   let builder_32 = 
     make ~name:"windows_32" ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
