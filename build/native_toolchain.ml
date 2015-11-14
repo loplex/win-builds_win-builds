@@ -17,7 +17,6 @@ let _ =
 #use "slackbuilds.org/libraries/efl/wb-common.ml"
 #use "slackbuilds.org/libraries/efl/wb-for-your-tools-only.ml"
 #use "slackbuilds.org/libraries/elementary/wb-regular.ml"
-#use "slackware64-current/l/qt/wb-native.ml"
 #use "mingw/mingw-w64/wb-common.ml"
 #use "mingw/gendef/wb.ml"
 #use "mingw/genidl/wb.ml"
@@ -28,7 +27,7 @@ let _ =
 
   let _all = add ("all", None)
     ~dir:""
-    ~dependencies:[ autoconf; automake; libtool; lua; qt; efl; elementary;
+    ~dependencies:[ autoconf; automake; libtool; lua; efl; elementary;
       gendef; genidl; genpeimg; widl; gmp; mpfr; libmpc ]
     ~version:"0.0.0"
     ~build:1
