@@ -22,9 +22,15 @@ let mingw_w64_deps = [ binutils; gcc_core ] in
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
   let ocaml = ocaml_add
     ~dependencies:[ binutils; flexdll; gcc_full; mingw_w64_full ]
+    ~native_deps:[ "ocaml" ]
   in
 
 #use "slackbuilds.org/ocaml/ocaml-findlib/wb.ml"
+  let ocaml_findlib = ocaml_findlib_add
+    ~dependencies:[ ocaml ]
+    ~cross_deps:[]
+    ~native_deps:[]
+  in
 #use "mingw/zz_config/wb.ml"
 
 #extras

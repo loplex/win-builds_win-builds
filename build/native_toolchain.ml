@@ -9,11 +9,12 @@ let _ =
 #use "slackware64-current/l/gmp/wb.ml"
 #use "slackware64-current/l/mpfr/wb.ml"
 #use "slackware64-current/l/libmpc/wb.ml"
-#use "slackbuilds.org/ocaml/ocaml/wb.ml"
-  let ocaml = ocaml_add ~dependencies:[] in
 #use "slackbuilds.org/development/lua/wb.ml"
 #use "slackware64-current/d/pkg-config/wb-common.ml"
 #use "slackware64-current/d/pkg-config/wb-only-pkg-m4.ml"
+#use "mingw/musl-private/wb.ml"
+#use "slackbuilds.org/development/luajit/wb.ml"
+  let luajit = luajit_add ~dependencies:[ musl_private ] in
 #use "slackbuilds.org/libraries/efl/wb-common.ml"
 #use "slackbuilds.org/libraries/efl/wb-for-your-tools-only.ml"
 #use "slackbuilds.org/libraries/elementary/wb-regular.ml"
@@ -22,6 +23,10 @@ let _ =
 #use "mingw/genidl/wb.ml"
 #use "mingw/genpeimg/wb.ml"
 #use "mingw/widl/wb.ml"
+#use "slackbuilds.org/ocaml/ocaml/wb.ml"
+  let ocaml = ocaml_add ~dependencies:[ musl_private ] in
+#use "slackware64-current/a/file/wb.ml"
+  let file = file_add ~dependencies:[] in
 
 #extras
 
