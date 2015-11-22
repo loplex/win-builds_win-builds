@@ -5,8 +5,10 @@ default: build
 build_real:
 	cd .. \
 	&& ocaml str.cma ./win-builds/build/amalgation.ml \
-	| LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" \
-	  ocaml unix.cma str.cma -I +threads threads.cma -stdin $(VERSION)
+	  > ./win-builds/build/amalgated.ml \
+	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
+	  ocaml unix.cma str.cma -I +threads threads.cma \
+		win-builds/build/amalgated.ml $(VERSION)
 
 ifneq ($(WITH_LXC),)
 
