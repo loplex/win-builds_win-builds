@@ -188,6 +188,7 @@ let do_adds builder =
 #use "slackware64-current/l/readline/wb.ml"
 #use "slackware64-current/a/file/wb.ml"
     let file = file_add ~dependencies:[ tre ] in
+#use "mingw/rufus/wb.ml"
 #use "slackware64-current/d/python/wb.ml"
 #use "slackware64-current/l/boost/wb.ml"
 #use "mingw/zz_config/wb.ml"
