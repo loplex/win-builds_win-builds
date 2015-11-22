@@ -489,16 +489,7 @@ let do_adds_ministat () =
 #use "slackbuilds.org/libraries/efl/wb-yypkg.ml"
 #use "slackbuilds.org/libraries/elementary/wb-yypkg.ml"
 
-  let ocaml_efl = add ("ocaml-efl", None)
-    ~dir:"slackbuilds.org/ocaml"
-    ~dependencies:[ ocaml_findlib; elementary ]
-    ~cross_deps:[ "ocaml" ]
-    ~version:"1.13.0"
-    ~build:1
-    ~sources:[
-      Tarball ("${PACKAGE}-${VERSION}.tar.gz", "d1f298522216097bdc866706c3b8ff7395e0a664");
-    ]
-  in
+#use "slackbuilds.org/ocaml/ocaml-efl/wb.ml"
 
   let ocaml_archive = add ("ocaml-archive", None)
     ~dir:"slackbuilds.org/ocaml"
