@@ -47,7 +47,8 @@ let do_adds builder =
     let fontconfig = fontconfig_add ~variant:"regular" ~dependencies:[ freetype; expat ] in
 
 #use "slackware64-current/l/giflib/wb.ml"
-#use "slackware64-current/l/libtiff/wb.ml"
+#use "slackware64-current/l/libtiff/wb-common.ml"
+    let libtiff = libtiff_add ~variant:"regular" ~dependencies:[ libjpeg_turbo; xz ] in
 #use "slackbuilds.org/development/lua/wb-regular.ml"
 #use "slackbuilds.org/development/luajit/wb.ml"
     let luajit = luajit_add ~dependencies:[] in
