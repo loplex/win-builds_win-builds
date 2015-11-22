@@ -23,24 +23,15 @@ let needs_rebuild ~version ~sources ~outputs =
   List.exists (fun o -> Sources.compare ~version ~sources ~output:o > 0) outputs
 
 let run_build_shell ~devshell ~run ~p:(c, r) =
-  let dir = r.dir ^/ c.package in
-  let variant = match c.variant with None -> "" | Some s -> "-" ^ s in
   run [|
-    "bash"; "-cex";
-    String.concat "; " [
-      sp "cd %S" dir;
-      sp "export DESCR=\"$(sed -n 's;^[^:]\\+: ;; p' slack-desc | sed -e 's;\";\\\\\\\\\";g' -e 's;/;\\\\/;g' | tr '\\n' ' ')\"";
-      sp "export PREFIX=\"$(echo \"${YYPREFIX}\" | sed 's;^/;;')\"";
-      sp "export VERSION=%S" r.version;
-      sp "export BUILD=%d" r.build;
-      sp "if ! chown root:root / 2>/dev/null; then chown() { : ; }; export -f chown; fi";
-      sp "if [ -e config%s ]; then . ./config%s; fi" variant variant;
-      if not devshell then
-        sp "exec bash -x %s.SlackBuild" c.package
-      else
-        sp "exec bash --norc"
-
-    ]
+    "bash";
+    "./win-builds/package_support.sh";
+    r.dir ^/ c.package;
+    c.package;
+    (match c.variant with None -> "" | Some s -> "");
+    r.version;
+    string_of_int r.build;
+    string_of_bool devshell;
   |] ()
 
 let build_one_package ~builder ~outputs ~env ~p:((c, r) as p) ~log =
