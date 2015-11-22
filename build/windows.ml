@@ -24,6 +24,7 @@ let do_adds builder =
 #use "mingw/winstorecompat/wb.ml"
 #use "mingw/widl/wb.ml"
 #use "mingw/win-iconv/wb.ml"
+#use "mingw/musl-private/wb.ml"
 #use "mingw/tre/wb.ml"
 #use "slackware64-current/a/gettext/wb.ml"
     let gettext = add (gettext_name, gettext_variant)
@@ -456,6 +457,7 @@ let do_adds_ministat () =
     ~dependencies:[]
     ~build:2
   in
+#use "mingw/musl-private/wb.ml"
 #use "mingw/tre/wb.ml"
 #use "slackware64-current/l/expat/wb-regular.ml"
 #use "slackware64-current/a/dbus/wb-common.ml"
