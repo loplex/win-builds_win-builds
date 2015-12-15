@@ -9,6 +9,8 @@ VERSION="${4}"
 BUILD="${5}"
 DEVSHELL="${6}"
 
+export VERSION BUILD
+
 yyextract() {
   local CWD="${1}"
   local BASE="${2}"
