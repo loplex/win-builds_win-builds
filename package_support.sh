@@ -52,7 +52,8 @@ yymakepkg() {
     -e "s/%{DESCR}/\"${DESCR:-"No description"}\"/" \
     -e "s/(some_predicate some_value)/${SUB:+(${SUB} "yes")}/" \
     | yypkg --makepkg --output ${YYOUTPUT} --script - \
-        --tar-args -- -C "${PKG}" "$@"
+        --directory "${PKG}/${PREFIX}" \
+        --tar-args -- "$@"
 
   eval "${shellopts}"
 }
