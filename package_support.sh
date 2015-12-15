@@ -39,6 +39,9 @@ yymakepkg() {
 
   local DESCR="$(sed -n 's;^[^:]\\+: ;; p' "${CWD}/slack-desc" | sed -e 's;";\\\\";g' -e 's;/;\\/;g' | tr '\\n' ' ')"
 
+  local shellopts="$(set +o)"
+  set -u
+
   yypkg --makepkg --template 'yes' | sed \
     -e "s/%{PKG}/${PKGNAM}${SUB:+-${SUB}}/" \
     -e "s/%{HST}/${HOST_TRIPLET}/" \
@@ -50,6 +53,8 @@ yymakepkg() {
     -e "s/(some_predicate some_value)/${SUB:+(${SUB} "yes")}/" \
     | yypkg --makepkg --output ${YYOUTPUT} --script - \
         --tar-args -- -C "${PKG}" "$@"
+
+  eval "${shellopts}"
 }
 
 export -f yyextract yystrip yymakepkg
