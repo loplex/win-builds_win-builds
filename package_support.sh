@@ -58,10 +58,11 @@ export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
 
 if ! chown root:root / 2>/dev/null; then chown() { : ; }; export -f chown; fi
 
+cd "${SRCDIR}"
+
 CONFIG="config${VARIANT:+-"${VARIANT}"}"
 if [ -e "${CONFIG}" ]; then . "./${CONFIG}"; fi
 
-cd "${SRCDIR}"
 if [ x"${DEVSHELL}" = x"true" ]; then
   exec bash --norc -i
 else
