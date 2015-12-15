@@ -58,7 +58,23 @@ yymakepkg() {
   eval "${shellopts}"
 }
 
-export -f yyextract yystrip yymakepkg
+yymakepkg_stripped() {
+  local PKGNAM="${1}"
+  local TARGET_TRIPLET="${2}"
+
+  local TAR_DIR="${PREFIX##*/}"
+
+  yystrip
+
+  yymakepkg "${PKGNAM}" "" "${TARGET_TRIPLET}" \
+    -C "${PKG}/${PREFIX}/.." --exclude "lib${LIBDIRSUFFIX}/debug" "${TAR_DIR}" &
+  yymakepkg "${PKGNAM}" "dbg" "${TARGET_TRIPLET}" \
+    -C "${PKG}/${PREFIX}/.." "${TAR_DIR}/lib${LIBDIRSUFFIX}/debug" &
+
+  wait
+}
+
+export -f yyextract yystrip yymakepkg yymakepkg_stripped
 
 export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
 
