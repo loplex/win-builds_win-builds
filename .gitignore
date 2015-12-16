@@ -18,6 +18,7 @@ win-builds-*.exe
 win-builds-*.tar.*
 
 build/_build/
+build/amalgated.ml
 
 *.native
 *.byte
