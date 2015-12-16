@@ -32,7 +32,7 @@ let _ =
 
   let _all = add ("all", None)
     ~dir:""
-    ~dependencies:[ autoconf; automake; libtool; lua; efl; elementary;
+    ~dependencies:[ autoconf; automake; libtool; lua; elementary;
       gendef; genidl; genpeimg; widl; gmp; mpfr; libmpc ]
     ~version:"0.0.0"
     ~build:1
