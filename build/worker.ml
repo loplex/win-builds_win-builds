@@ -28,7 +28,7 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     "./win-builds/package_support.sh";
     r.dir ^/ c.package;
     c.package;
-    (match c.variant with None -> "" | Some s -> "");
+    (match c.variant with None -> "" | Some s -> s);
     r.version;
     string_of_int r.build;
     string_of_bool devshell;
