@@ -171,4 +171,9 @@ yypkg: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_BSDTAR) libocaml ocaml-fileutils 
 	cd yypkg-$(YYPKG_VERSION) && $(MAKE) yypkg-no-gui
 	cp -L yypkg-$(YYPKG_VERSION)/src/yypkg.native $(PREFIX)/bin/yypkg
 
+ocaml-efl:
+	ocamlfind remove efl
+	$(call DOWNLOAD_AND_EXTRACT,ocaml-efl-$(OCAML_EFL_VERSION),tar.gz)
+	$(call BUILD_AUTOTOOLS,ocaml-efl,$(OCAML_EFL_VERSION),OCAMLFIND_DESTDIR="$$(ocamlfind printconf destdir)")
+
 .PHONY: coreutils make ocaml findlib sed findutils yypkg
