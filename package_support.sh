@@ -58,7 +58,7 @@ yymakepkg() {
   eval "${shellopts}"
 }
 
-yymakepkg_stripped() {
+yymakepkg_split() {
   local PKGNAM="${1}"
   local TARGET_TRIPLET="${2}"
 
@@ -74,7 +74,7 @@ yymakepkg_stripped() {
   wait
 }
 
-export -f yyextract yystrip yymakepkg yymakepkg_stripped
+export -f yyextract yystrip yymakepkg yymakepkg_split
 
 export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
 
