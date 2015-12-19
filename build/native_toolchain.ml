@@ -17,7 +17,7 @@ let _ =
   let luajit = luajit_add ~dependencies:[ musl_private ] in
 #use "slackbuilds.org/libraries/efl/wb-common.ml"
 #use "slackbuilds.org/libraries/efl/wb-for-your-tools-only.ml"
-#use "slackbuilds.org/libraries/elementary/wb-regular.ml"
+#use "slackbuilds.org/libraries/elementary/wb-for-your-tools-only.ml"
 #use "mingw/mingw-w64/wb-common.ml"
 #use "mingw/gendef/wb.ml"
 #use "mingw/genidl/wb.ml"
