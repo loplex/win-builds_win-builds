@@ -53,7 +53,6 @@ BUILD_OASIS = \
 P = patch --verbose -p1 < "$(PATCHES)/$(1).patch"
 
 default: summary
-	sleep 2
 	$(MAKE) -C . all
 
 summary:
