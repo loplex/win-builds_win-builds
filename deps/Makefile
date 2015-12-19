@@ -3,11 +3,11 @@ include ../Makefile.data
 export LIBRARY_PATH:=$(PREFIX)/lib:$(LIBRARY_PATH)
 export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 
-NEEDS_FULL = $(shell (set -o pipefail; export PATH=$(PATH); $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
-NEEDS_GNU = $(call NEEDS_FULL,$(1) --version,$(2).*Free Software Foundation,$(3))
-NEEDS_HEADER = $(call NEEDS_FULL,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
+NEEDS = $(shell (set -o pipefail; export PATH=$(PATH); $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
+NEEDS_GNU = $(call NEEDS,$(1) --version,$(2).*Free Software Foundation,$(3))
+NEEDS_HEADER = $(call NEEDS,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
 
-NEEDS_XZ := $(call NEEDS_FULL,xz --version,XZ Utils,xz)
+NEEDS_XZ := $(call NEEDS,xz --version,XZ Utils,xz)
 NEEDS_LIBLZMA := $(call NEEDS_HEADER,lzma.h,liblzma)
 NEEDS_COREUTILS := $(call NEEDS_GNU,cp,,coreutils)
 NEEDS_PATCH := $(call NEEDS_GNU,patch,,patch)
@@ -17,7 +17,7 @@ NEEDS_SED := $(call NEEDS_GNU,sed,,sed)
 NEEDS_FINDUTILS := $(call NEEDS_GNU,find,,findutils)
 NEEDS_BASH := $(call NEEDS_GNU,bash,,bash)
 NEEDS_LIBARCHIVE := $(call NEEDS_HEADER,archive.h,libarchive)
-NEEDS_BSDTAR := $(call NEEDS_FULL,bsdtar --version,libarchive,bsdtar)
+NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
 # TODO: ocaml and findlib are a bit annoying to skip because the system ones
 # have strong opinions on where installed files should go and we don't want to
 # require root.
