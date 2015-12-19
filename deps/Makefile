@@ -128,7 +128,7 @@ findlib: $(NEEDS_OCAML)
 	$(call DOWNLOAD_AND_EXTRACT,findlib-$(FINDLIB_VERSION),tar.gz)
 	(cd findlib-$(FINDLIB_VERSION) \
 		&& ./configure -no-camlp4 \
-		&& $(MAKE) \
+		&& $(MAKE) -j1 \
 		&& $(MAKE) install)
 
 libocaml: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_XZ)
