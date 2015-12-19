@@ -168,8 +168,7 @@ cryptokit: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
 	$(call BUILD_OASIS,cryptokit,$(CRYPTOKIT_VERSION),)
 
 yypkg: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_BSDTAR) libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ)
-	$(call DOWNLOAD_AND_EXTRACT,yypkg-$(YYPKG_VERSION),tar.xz)
-	cd yypkg-$(YYPKG_VERSION) && $(call P,yypkg/0001-Package-new-module-to-print-the-metadata-from-the-gi)
+	$(call DOWNLOAD_AND_EXTRACT,yypkg-$(YYPKG_VERSION),tar.gz)
 	cd yypkg-$(YYPKG_VERSION) && $(MAKE) yypkg-no-gui
 	cp -L yypkg-$(YYPKG_VERSION)/src/yypkg.native $(PREFIX)/bin/yypkg
 
