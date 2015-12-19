@@ -1,7 +1,7 @@
 export VERSION := next
 
 YYPKG_FILES := http://win-builds.org/yypkg
-YYPKG_VERSION := 1.9.0
+YYPKG_VERSION := 1.10-alpha1
 
 COREUTILS_VERSION := 8.21
 MAKE_VERSION := 4.1
