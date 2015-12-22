@@ -3,7 +3,7 @@ include ../Makefile.data
 export LIBRARY_PATH:=$(PREFIX)/lib:$(LIBRARY_PATH)
 export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 
-NEEDS = $(shell (set -o pipefail; export PATH=$(PATH); $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
+NEEDS = $(shell (export PATH=$(PATH); $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
 NEEDS_GNU = $(call NEEDS,$(1) --version,$(2).*Free Software Foundation,$(3))
 NEEDS_HEADER = $(call NEEDS,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
 
