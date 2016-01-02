@@ -381,10 +381,10 @@ let do_adds_ministat () =
     ~dir:"slackbuilds.org/ocaml"
     ~dependencies:[ ocaml_findlib ]
     ~cross_deps:[ "ocaml" ]
-    ~version:"1.9"
+    ~version:"1.10"
     ~build:1
     ~sources:[
-      Tarball ("cryptokit-${VERSION}.tar.gz", "2e90f27d05fe68a79747e64eef481835291babf4");
+      Tarball ("cryptokit-${VERSION}.tar.gz", "73d9c450fd9f3c38089381673fdda6c8b46740b6");
     ]
   in
 
