@@ -368,7 +368,8 @@ let do_adds builder =
 
 let do_adds_ministat () =
   let open Sources in
-  let add = Worker.register ~builder:Builders.Windows.builder_ministat in
+  let builder = Builders.Windows.builder_ministat in
+  let add = Worker.register ~builder in
 
 #use "slackbuilds.org/ocaml/ocaml-findlib/wb.ml"
   let ocaml_findlib = ocaml_findlib_add
