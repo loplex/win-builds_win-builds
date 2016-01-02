@@ -95,7 +95,7 @@ release-upload:
 	  --exclude='memo_pkg' \
 	  --delete-after \
 	  --no-perms \
-	  $(VERSION)/{logs,packages} \
+	  ../$(VERSION)/{logs,packages} \
 	  $(WEB)/$(VERSION)/
 
 
