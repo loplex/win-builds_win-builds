@@ -46,7 +46,7 @@ BUILD_AUTOTOOLS = \
 
 BUILD_OASIS = \
 	cd $(1)-$(2) \
-	&& ocaml setup.ml -configure $(3) \
+	&& ocaml setup.ml -configure --prefix $(PREFIX) $(3) \
 	&& ocaml setup.ml -build -j 4 \
 	&& ocaml setup.ml -install
 
