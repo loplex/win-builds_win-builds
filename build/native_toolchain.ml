@@ -24,7 +24,7 @@ let _ =
 #use "mingw/genpeimg/wb.ml"
 #use "mingw/widl/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
-  let ocaml = ocaml_add ~dependencies:[ musl_private ] in
+let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
 #use "slackware64-current/a/file/wb.ml"
   let file = file_add ~dependencies:[] in
 
