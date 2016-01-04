@@ -13,10 +13,6 @@ let do_adds builder =
     ~build:2
     ~dependencies:[]
   in
-  let winpthreads = mingw_w64_add ("winpthreads", None)
-    ~dependencies:[]
-    ~build:2
-  in
 #use "mingw/gendef/wb.ml"
 #use "mingw/genidl/wb.ml"
 #use "mingw/genpeimg/wb.ml"
@@ -113,7 +109,7 @@ let do_adds builder =
     let gcc_core_dependencies = [] in
     let gcc_native_dependencies = [] in
 #use "slackware64-current/d/gcc/wb-core.ml"
-    let gcc_full_dependencies = [ mpfr; gmp; libmpc; winpthreads ] in
+    let gcc_full_dependencies = [ mpfr; gmp; libmpc ] in
 #use "slackware64-current/d/gcc/wb-full.ml"
 
 #use "slackbuilds.org/multimedia/x264/wb.ml"
@@ -204,7 +200,7 @@ let do_adds builder =
         libtheora; opus; sox;
         madplay; icu4c; make; gperf; zz_config;
         jansson; libsigc_plus_plus;
-        zlib; xz; winpthreads; pkg_config; libarchive;
+        zlib; xz; pkg_config; libarchive;
         wget; dejavu_fonts_ttf;
         libjpeg_turbo; openjpeg; sdl2; libgcrypt;
         glib_networking; libxml2; libsoup; djvulibre; a52dec; libmpeg2;
@@ -456,10 +452,6 @@ let do_adds_ministat () =
   in
 
 #use "mingw/mingw-w64/wb-common.ml"
-  let winpthreads = mingw_w64_add ("winpthreads", None)
-    ~dependencies:[]
-    ~build:2
-  in
 #use "mingw/musl-private/wb.ml"
 #use "mingw/tre/wb.ml"
 #use "slackware64-current/l/expat/wb-regular.ml"
