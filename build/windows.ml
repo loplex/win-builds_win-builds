@@ -509,7 +509,7 @@ let do_adds_ministat () =
     ~version:"1.10-alpha2"
     ~build:1
     ~sources:[
-      Tarball ("${PACKAGE}-${VERSION}.tar.xz", "51254a1796b282fbe99b145725586921f743a5b7");
+      Tarball ("${PACKAGE}-${VERSION}.tar.gz", "51254a1796b282fbe99b145725586921f743a5b7");
     ]
   in
 
