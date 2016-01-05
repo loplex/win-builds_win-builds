@@ -506,10 +506,10 @@ let do_adds_ministat () =
         dbus; libarchive
     ]
     ~cross_deps:[ "ocaml" ]
-    ~version:"1.9.0"
+    ~version:"1.10-alpha2"
     ~build:1
     ~sources:[
-      Tarball ("${PACKAGE}-${VERSION}.tar.xz", "f3d9d39037420f04c0155410b193f7d3a48ec486");
+      Tarball ("${PACKAGE}-${VERSION}.tar.xz", "51254a1796b282fbe99b145725586921f743a5b7");
     ]
   in
 
