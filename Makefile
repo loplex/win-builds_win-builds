@@ -49,7 +49,7 @@ deps:
 
 tarballs-upload:
 	set -o pipefail; \
-	LOGLEVEL=dbg DRYRUN=1 $(MAKE) WINDOWS=all 2>&1 \
+	LOGLEVEL=dbg DRYRUN=1 $(MAKE) WINDOWS=all WINDOWS_MINISTAT=yypkg 2>&1 \
 	  | sed -nu -e 's;^ [^ ]\+ -> source=\(.\+/.\+/.\+\);\1; p' -e '/^File\>/ w /dev/stderr' \
 	  | tee file_list
 	rsync -avP --chmod=D755,F644 --delete-after --files-from=file_list .. $(WEB)/$(VERSION)/tarballs/$$dir/
