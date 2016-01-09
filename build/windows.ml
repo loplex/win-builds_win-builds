@@ -333,6 +333,7 @@ let do_adds builder =
     add ("download", None)
       ~dir:""
       ~dependencies:[]
+      ~cross_deps:[ "all" ]
       ~version:"0.0.0"
       ~build:1
       ~sources:[]
