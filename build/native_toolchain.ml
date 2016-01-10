@@ -23,6 +23,7 @@ let _ =
 #use "mingw/genidl/wb.ml"
 #use "mingw/genpeimg/wb.ml"
 #use "mingw/widl/wb.ml"
+#use "mingw/examine/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
 let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
 #use "slackware64-current/a/file/wb.ml"
@@ -33,7 +34,7 @@ let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
   let _all = add ("all", None)
     ~dir:""
     ~dependencies:[ autoconf; automake; libtool; lua; elementary;
-      gendef; genidl; genpeimg; widl; gmp; mpfr; libmpc ]
+      gendef; genidl; genpeimg; widl; gmp; mpfr; libmpc; examine ]
     ~version:"0.0.0"
     ~build:1
     ~sources:[]

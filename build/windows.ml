@@ -185,6 +185,7 @@ let do_adds builder =
 #use "slackware64-current/a/file/wb.ml"
     let file = file_add ~dependencies:[ tre ] in
 #use "mingw/rufus/wb.ml"
+#use "mingw/examine/wb.ml"
 #use "slackware64-current/d/python/wb.ml"
 #use "slackware64-current/l/boost/wb.ml"
 #use "mingw/zz_config/wb.ml"
@@ -210,7 +211,7 @@ let do_adds builder =
         json_c;
         check; bison; python; boost; vlc; tre; (* adwaita_icon_theme; *)
         readline; ncurses; luajit;
-        rufus;
+        rufus; examine;
       ]
       ~version:"0.0.0"
       ~build:1
