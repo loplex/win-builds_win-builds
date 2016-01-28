@@ -78,6 +78,13 @@ export -f yyextract yystrip yymakepkg yymakepkg_split
 
 export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
 
+# Unfortunately, some bash versions have a bug for which no fixed version is
+# currently released, even less deployed. Moreover, autoconf will try to
+# re-exec the configure script with a "proper" shell as early as possible and
+# prefers a bash from /bin or /usr/bin to one from $PATH; CONFIG_SHELL forces
+# the use of our newly-built bash.
+export CONFIG_SHELL="$(which bash)"
+
 if ! chown root:root / 2>/dev/null; then chown() { : ; }; export -f chown; fi
 
 cd "${SRCDIR}"
