@@ -101,7 +101,7 @@ sed: $(NEEDS_XZ)
 
 bash:
 	$(call DOWNLOAD_AND_EXTRACT,bash-$(BASH_VERSION),tar.gz)
-	cd "bash-$(BASH_VERSION)" && $(call P,bash/nfd_lte_nbuffers.patch)
+	cd "bash-$(BASH_VERSION)" && $(call P,bash/nfd_lte_nbuffers)
 	$(call BUILD_AUTOTOOLS,bash,$(BASH_VERSION),)
 
 tar: $(NEEDS_XZ)
