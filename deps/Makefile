@@ -30,7 +30,7 @@ DOWNLOAD_AND_EXTRACT = \
 	rm -rf "$(1)" \
 	&& mkdir -p tarballs \
 	&& if ! [ -e "tarballs/$(1).$(2)" ]; then \
-		(cd tarballs && curl "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)") \
+		(cd tarballs && curl "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)" || rm -f "$(1).$(2)") \
 	fi \
 	&& (case $(2) in \
 	  "tar.gz"|"tgz") tar xzf "tarballs/$(1).$(2)";; \
