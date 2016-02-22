@@ -11,72 +11,89 @@ DEVSHELL="${6}"
 
 export VERSION BUILD
 
-yyextract() {
-  local CWD="${1}"
-  local BASE="${2}"
-  find "${CWD}" -maxdepth 1 -name "${BASE}.*" -a \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' \) -exec tar xf${TAR_VERBOSE} {} +
+yycflags() {
+  local dbg
+  local hardening
+  local optimization
+
+  case "${YYOPTIMIZATION}" in
+    *) optimization='-O2' ;;
+  esac
+
+  case "${YYDEBUG}" in
+    3) dbg='-ggdb3' ;;
+    2) dbg='-ggdb2' ;;
+    1 | *) dbg='-ggdb' ;;
+    0) dbg='-ggdb0' ;;
+  esac
+
+  case "${YYHARDENING}" in
+    *) hardening='' ;;
+  esac
+
+  echo ${optimization} ${dbg} ${hardening}
 }
 
-yystrip() {
-  (cd "${PKG}" && \
-    find . -type f -size +4k -printf '%P\n' -exec file {} + \
-    | awk -F':' "/${HOST_EXE_FORMAT}.*(executable|shared object)/"' {print $1}' \
-    | while read file; do \
-        DEBUG="${PKG}/${PREFIX}/lib${LIBDIRSUFFIX}/debug/${file}.debug"
-        mkdir -p "${DEBUG%/*}"
-        objcopy --only-keep-debug "${file}" "${DEBUG}"
-        objcopy --strip-debug "${file}"
-        objcopy --add-gnu-debuglink="${DEBUG}" "${file}"
-      done
-  )
+yycxxflags() {
+  yycflags "$@"
 }
 
-yymakepkg() {
-  local PKGNAM="${1}"
-  local SUB="${2}"
-  local TARGET_TRIPLET="${3}"
-  shift 3
+yyasflags() {
+  local dbg
 
-  local DESCR="$(sed -n 's;^[^:]\\+: ;; p' "${CWD}/slack-desc" | sed -e 's;";\\\\";g' -e 's;/;\\/;g' | tr '\\n' ' ')"
+  case "${YYDEBUG}" in
+    0) dbg='' ;;
+    *) dbg='-g' ;;
+  esac
 
-  local shellopts="$(set +o)"
-  set -u
-
-  yypkg --makepkg --template 'yes' | sed \
-    -e "s/%{PKG}/${PKGNAM}${SUB:+-${SUB}}/" \
-    -e "s/%{HST}/${HOST_TRIPLET}/" \
-    -e "s/some %{TGT}/${TARGET_TRIPLET}/" \
-    -e "s/%{VER} 0/${VERSION} ${BUILD}/" \
-    -e "s/%{PACKAGER_MAIL}/adrien@notk.org/" \
-    -e "s/%{PACKAGER}/\"Adrien Nader\"/" \
-    -e "s/%{DESCR}/\"${DESCR:-"No description"}\"/" \
-    -e "s/(some_predicate some_value)/${SUB:+(${SUB} "yes")}/" \
-    | yypkg --makepkg --output ${YYOUTPUT} --script - \
-        --directory "${PKG}/${PREFIX}" \
-        --tar-args -- "$@"
-
-  eval "${shellopts}"
+  echo ${dbg}
 }
 
-yymakepkg_split() {
-  local PKGNAM="${1}"
-  local TARGET_TRIPLET="${2}"
+yyldflags() {
+  local triplet="${1:-"${HOST_TRIPLET}"}"
 
-  local TAR_DIR="${PREFIX##*/}"
+  local library_path=''
+  local hardening=''
+  local high_entropy_va=''
 
-  yystrip
+  case "${YYDEFAULTLIBRARYPATH}" in
+    no) library_path='' ;;
+    *)
+      case "${HOST_PREFIX}" in
+        "${TARGET_PREFIX}") library_path="-L/${PREFIX}/lib${LIBDIRSUFFIX}" ;;
+        *) library_path='' ;;
+      esac
+  esac
 
-  yymakepkg "${PKGNAM}" "" "${TARGET_TRIPLET}" \
-    -C "${PKG}/${PREFIX}/.." --exclude "lib${LIBDIRSUFFIX}/debug" "${TAR_DIR}" &
-  yymakepkg "${PKGNAM}" "dbg" "${TARGET_TRIPLET}" \
-    -C "${PKG}/${PREFIX}/.." "${TAR_DIR}/lib${LIBDIRSUFFIX}/debug" &
+  case "${triplet}" in
+    x86_64-w64-mingw32)
+      dynamicbase=',--dynamicbase'
+      nxcompat=',--nxcompat'
+      high_entropy_va=',--high-entropy-va'
+      ;;
+    i?86-w64-mingw32)
+      dynamicbase=',--dynamicbase'
+      nxcompat=',--nxcompat'
+      high_entropy_va=''
+      ;;
+    *)
+      dynamicbase=''
+      nxcompat=''
+      high_entropy_va=''
+      ;;
+  esac
+  case "${YYHARDENING}" in
+    no) hardening='' ;;
+    *) hardening="${dynamicbase}${nxcompat}${high_entropy_va}" ;;
+  esac
 
-  wait
+  echo ${library_path} ${hardening:+"-Wl${hardening}"}
 }
 
-export -f yyextract yystrip yymakepkg yymakepkg_split
+export -f yycflags yycxxflags yyasflags yyldflags
 
 export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
+export PATH="/home/adrien/wb/build/win-builds/package_support:${PATH}"
 
 # Unfortunately, some bash versions have a bug for which no fixed version is
 # currently released, even less deployed. Moreover, autoconf will try to

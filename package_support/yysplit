@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -ex
+
+while [ "$#" -ne 0 ]; do
+  case "${1}" in
+    --pkg)
+      PKG="${2}"
+      shift 2
+      ;;
+    -*)
+      echo "Unknown option \`${1}'." 1>&2
+      exit 1
+      ;;
+    *)
+      BINARY="${1}"
+      shift 1
+      ;;
+  esac
+done
+
+set -u
+
+cd "${PKG}/${PREFIX}"
+
+t="$(file "${BINARY}")"
+case "${t})" in
+  *PE32\ executable*)
+    OBJCOPY='i686-w64-mingw32-objcopy'
+    ;;
+  *PE32+\ executable*)
+    OBJCOPY='x86_64-w64-mingw32-objcopy'
+    ;;
+  # XXX: this assumes non-windows binaries are from the build machine
+  *\ ELF\ *\ LSB\ executable*)
+    OBJCOPY='objcopy'
+    ;;
+  *)
+    # TODO: warn
+    echo "Type \"${t}\" is not fully handled when it comes to stripping." 1>&2
+    exit 1
+    ;;
+esac
+
+DEBUG="lib${LIBDIRSUFFIX}/debug"
+
+BINARY_DIR="${BINARY%/*}"
+BINARY_FILE="${BINARY##*/}"
+
+DEBUG_DIR="$(echo "${BINARY_DIR}" | sed 's,[^/]\+,..,g')/${DEBUG}/${BINARY_DIR}"
+DEBUG_FILE="${DEBUG_DIR}/${BINARY_FILE}.debug"
+
+cd "${PKG}/${PREFIX}/${BINARY_DIR}"
+
+mkdir -p "${DEBUG_DIR}"
+"${OBJCOPY}" --only-keep-debug "${BINARY_FILE}" "${DEBUG_FILE}"
+"${OBJCOPY}" --strip-debug --strip-unneeded "${BINARY_FILE}"
+"${OBJCOPY}" --add-gnu-debuglink="${DEBUG_FILE}" "${BINARY_FILE}"

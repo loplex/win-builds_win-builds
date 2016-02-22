@@ -1,0 +1,110 @@
+#!/bin/sh
+
+makepkg() {
+  local SUB="${1}"
+  shift 1
+
+  yymakepkg \
+    --package-name "${PKGNAM}" --sub "${SUB}" \
+    --cwd "${CWD}" \
+    --pkg "${PKG}" \
+    --version "${VERSION}" --build "${BUILD}" \
+    --packager "${PACKAGER}" --packager-mail "${PACKAGER_MAIL}" \
+    --description "${DESCR}" \
+    --host "${HOST_TRIPLET}" \
+    ${TARGET_TRIPLET:+--target "${TARGET_TRIPLET}"} \
+    -- \
+    "$@"
+}
+
+set -ex
+
+# Variables below must not come from the environment
+unset PKGNAM CWD PKG PACKAGER PACKAGER_MAIL
+unset VERSION BUILD HOST_TRIPLET TARGET_TRIPLET
+
+# DESCR is optional
+DESCR=""
+
+: ${LIBDIRSUFFIX?"must be provided through the environment."}
+: ${PREFIX:?"must be provided through the environment and not be ''."}
+
+while [ "$#" -ne 0 ]; do
+  case "${1}" in
+    --package-name|-p)
+      PKGNAM="${2}"
+      shift 2
+      ;;
+    --cwd)
+      CWD="${2}"
+      shift 2
+      ;;
+    --pkg)
+      PKG="${2}"
+      shift 2
+      ;;
+    --version)
+      VERSION="${2}"
+      shift 2
+      ;;
+    --build)
+      BUILD="${2}"
+      shift 2
+      ;;
+    --target)
+      TARGET_TRIPLET="${2}"
+      shift 2
+      ;;
+    --host)
+      HOST_TRIPLET="${2}"
+      shift 2
+      ;;
+    --packager)
+      PACKAGER="${2}"
+      shift 2
+      ;;
+    --packager-mail)
+      PACKAGER_MAIL="${2}"
+      shift 2
+      ;;
+    --description)
+      DESCR="${2}"
+      shift 2
+      ;;
+    -*)
+      echo "Unknown option \`${1}'." 1>&2
+      exit 1
+      ;;
+    *)
+      if [ -n "${PKGNAM}" ]; then
+        echo "Package name already set, \`${1}' is bogus." 1>&2
+        exit 1
+      fi
+      PKGNAM="${1}"
+      shift
+      ;;
+  esac
+done
+
+set -u
+
+TAR_DIR="$(basename "${PKG}/${PREFIX}")"
+
+yystrip --pkg "${PKG}"
+
+IDS=""
+
+makepkg '' \
+  -C "${PKG}/${PREFIX}/.." \
+  --exclude "lib${LIBDIRSUFFIX}/debug" \
+  "${TAR_DIR}" &
+IDS="${IDS} $!"
+
+makepkg 'dbg' \
+  -C "${PKG}/${PREFIX}/.." \
+  "${TAR_DIR}/lib${LIBDIRSUFFIX}/debug" &
+IDS="${IDS} $!"
+
+for ID in ${IDS}; do
+  wait "${ID}"
+done

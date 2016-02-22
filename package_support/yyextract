@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -eux
+
+# TODO: extraction failures are not propagated
+
+CWD="${1:?"The current working directory must be provided and not ''."}"
+BASE="${2:?"The archive's base name must be provided and not ''."}"
+
+find "${CWD}" -maxdepth 1 \
+  -name "${BASE}.*" -a \
+  \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' \) \
+  -exec tar xf${TAR_VERBOSE} {} +

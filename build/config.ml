@@ -44,7 +44,10 @@ module Arch = struct
     bits : int;
     strip : string;
     exe_format : string;
+    strip_selector : string;
   }
+
+  let pe_strip_selector = "PE.* (executable|shared object)/"
 
   let build =
     let triplet = Sys.getenv "BUILD_TRIPLET" in
@@ -66,6 +69,18 @@ module Arch = struct
       | [ _; "apple"; _ ] -> "Mach-O"
       | _ -> "ELF"
     in
+    let strip_selector =
+      match components with
+      | [ _; _; "cygwin" ]
+      | [ _; _; "msys" ] -> pe_strip_selector
+      (* The Mac OS X case is listed below but file says
+       * "dynamically linked shared library" while the greps in the slackbuilds
+       * use "executable|shared object". Therefore, build-only libs won't be
+       * stripped but that shouldn't be an issue in practice. *)
+      | [ _; "apple"; _ ] ->
+          "don't try to strip Mach-O: identification and file's output parsing get too complicated with universal binaries"
+      | _ -> "ELF .* (executable|shared object)"
+    in
     {
       triplet;
       bits;
@@ -73,6 +88,7 @@ module Arch = struct
        * used for native/cross toolchains and therefore not redistributed *)
       strip = "strip";
       exe_format;
+      strip_selector;
     }
 
   let windows_32 = {
@@ -80,6 +96,7 @@ module Arch = struct
     bits = 32;
     strip = "i686-w64-mingw32-strip --strip-unneeded";
     exe_format = "PE";
+    strip_selector = pe_strip_selector;
   }
 
   let windows_64 = {
@@ -87,6 +104,7 @@ module Arch = struct
     bits = 64;
     strip = "x86_64-w64-mingw32-strip --strip-unneeded";
     exe_format = "PE";
+    strip_selector = pe_strip_selector;
   }
 end
 
@@ -228,13 +246,14 @@ module Builder = struct
       "YYOUTPUT", Env.Set [ t.yyoutput ];
       "TMP", t.tmp;
       "LIBDIRSUFFIX", Env.Set [ libdirsuffix ];
-      "HOST_EXE_FORMAT", Env.Set [ host.A.exe_format ];
-      "TARGET_EXE_FORMAT", Env.Set [ target.A.exe_format ];
-      "BUILD_EXE_FORMAT", Env.Set [ build.A.exe_format ];
-      "HOST_STRIP", Env.Set [ host.A.strip ];
-      "TARGET_STRIP", Env.Set [ target.A.strip ];
-      "BUILD_STRIP", Env.Set [ build.A.strip ];
-      "HOST_TRIPLET", Env.Set [ host.A.triplet ];
+      "STRIP_SELECTOR", Env.Set [ build.A.strip_selector ];
+      "HOST_EXE_FORMAT", Env.Set [ host.A.exe_format ]; (* TODO: unused, rm *)
+      "TARGET_EXE_FORMAT", Env.Set [ target.A.exe_format ]; (* TODO: unused, rm *)
+      "BUILD_EXE_FORMAT", Env.Set [ build.A.exe_format ]; (* TODO: unused, rm *)
+      "HOST_STRIP", Env.Set [ host.A.strip ]; (* TODO: unused, rm *)
+      "TARGET_STRIP", Env.Set [ target.A.strip ]; (* TODO: unused, rm *)
+      "BUILD_STRIP", Env.Set [ build.A.strip ]; (* TODO: unused, rm *)
+      "HOST_TRIPLET", Env.Set [ host.A.triplet ]; (* TODO: unused, rm *)
       "TARGET_TRIPLET", Env.Set [ target.A.triplet ];
       "BUILD_TRIPLET", Env.Set [ build.A.triplet ];
       "YYPREFIX_CROSS",

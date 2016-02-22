@@ -1,8 +1,7 @@
-let add =
-  Worker.register ~builder:Builders.Native_toolchain.builder
-
-let _ =
+let do_adds builder =
   let open Sources in
+  let add = Worker.register ~builder in
+
 #use "slackware64-current/d/autoconf/wb.ml"
 #use "slackware64-current/d/libtool/wb.ml"
 #use "slackware64-current/d/automake/wb.ml"
@@ -42,3 +41,6 @@ let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
   in
 
   ignore [ ocaml ]
+
+let () =
+  List.iter do_adds Builders.Native_toolchain.[ builder ]

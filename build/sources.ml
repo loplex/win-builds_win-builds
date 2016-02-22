@@ -35,7 +35,7 @@ module Git = struct
 
   let tar ~tarball ~git ~prefix ~dir =
     let open Unix in
-    Lib.(log wrn "Building archive from git at %S.\n%!" tarball);
+    log wrn "Building archive from git at %S.\n%!" tarball;
     let snd_in, fst_out = pipe () in
     set_close_on_exec snd_in;
     let git = run ~stdout:fst_out (git `LsFiles [ "HEAD" ]) in
@@ -47,7 +47,7 @@ module Git = struct
       "tar"; "c";
       "-C"; dir;
       "-T"; "-";
-      "--transform"; Lib.sp "s;^;%s/;" prefix;
+      "--transform"; sp "s;^;%s/;" prefix;
     |] in
     let tar = run ~stdin:snd_in ~stdout:snd_out tar_args in
     close snd_in;
@@ -63,7 +63,7 @@ module Git = struct
 
   let archive ~obj ~tarball ~git ~prefix =
     let open Unix in
-    Lib.(log wrn "Building archive from git at %S.\n%!" tarball);
+    log wrn "Building archive from git at %S.\n%!" tarball;
     let snd_in, fst_out = pipe () in
     set_close_on_exec snd_in;
     let prefix = sp "--prefix=%s/" prefix in
@@ -141,7 +141,7 @@ module Tarball = struct
       )
       else (
         let pipe_read, pipe_write = Unix.pipe () in
-        let line = Lib.sp "%s *%s\n" sha1 file in
+        let line = sp "%s *%s\n" sha1 file in
         let l = String.length line in
         assert (l = Unix.write pipe_write line 0 l);
         Unix.close pipe_write;
@@ -169,7 +169,7 @@ module Tarball = struct
         else (
           log cri "No attempt left.\nFAILED!\n";
           (try Sys.remove file with Sys_error _ -> ());
-          failwith (Lib.sp "Download of %S (SHA1=%s)." file sha1)
+          failwith (sp "Download of %S (SHA1=%s)." file sha1)
         )
       in
       let matches =
@@ -203,7 +203,7 @@ let get =
         try
           let (c, r) as p = Event.sync (Event.receive chan_send) in
           if not (List.mem p !past_requests) then (
-            Lib.log Lib.inf "Getting sources for %S.\n%!" c.package;
+            log inf "Getting sources for %S.\n%!" c.package;
             ListLabels.iter r.sources ~f:(function
               | WB _ -> ()
               | Tarball y -> Tarball.get ~package:c.package y
