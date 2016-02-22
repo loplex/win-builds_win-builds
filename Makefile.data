@@ -29,6 +29,9 @@ export MIRROR := http://win-builds.org/$(VERSION)/tarballs
 
 -include Makefile.data.local
 
+PACKAGER_MAIL ?= adrien@notk.org
+PACKAGER ?= Adrien Nader
+
 PREFIX := $(shell cd $(dir $(lastword $(MAKEFILE_LIST))) && pwd)/deps/prefix
 export PATH := $(PREFIX)/bin:$(PATH)
 LD_LIBRARY_PATH := $(PREFIX)/lib:$(LD_LIBRARY_PATH)

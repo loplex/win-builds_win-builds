@@ -6,7 +6,7 @@ build_real:
 	cd .. \
 	&& ocaml str.cma ./win-builds/build/amalgation.ml \
 	  > ./win-builds/build/amalgated.ml \
-	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
+	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" PACKAGER_MAIL="$(PACKAGER_MAIL)" PACKAGER="$(PACKAGER)" \
 	  ocaml unix.cma str.cma -I +threads threads.cma \
 		win-builds/build/amalgated.ml $(VERSION)
 
