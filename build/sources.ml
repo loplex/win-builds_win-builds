@@ -233,13 +233,22 @@ let version_of_package package =
 
 let compare ~version ~sources ~output =
   let ts f =
-    try Unix.((lstat f).st_mtime) with _ -> 0.
+    f, (try Unix.((lstat f).st_mtime) with _ -> 0.)
   in
   let ts_output = ts output in
+  let compare_f (a_f, a_ts) (b_f, b_ts) =
+    let x = compare a_ts b_ts in
+    (fun s -> (log dbg "%S is %s %S.\n%!" a_f s b_f))
+      (if x < 0 then "older than"
+        else (
+          if x > 0 then "newer than"
+          else "as old as"));
+    x
+  in
   let compare_one = function
-    | Patch patch -> compare (ts patch) ts_output
-    | WB file -> compare (ts file) ts_output
-    | Tarball (file, _) -> compare (ts file) ts_output
+    | Patch patch -> compare_f (ts patch) ts_output
+    | WB file -> compare_f (ts file) ts_output
+    | Tarball (file, _) -> compare_f (ts file) ts_output
     | Git.T { Git.obj = None } ->
         1
     | Git.T _ ->
