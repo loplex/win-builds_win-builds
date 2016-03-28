@@ -93,7 +93,7 @@ yyldflags() {
 export -f yycflags yycxxflags yyasflags yyldflags
 
 export PREFIX="$(echo "${YYPREFIX}" | sed 's;^/;;')"
-export PATH="/home/adrien/wb/build/win-builds/package_support:${PATH}"
+export PATH="${WIN_BUILDS_SOURCES}/package_support:${PATH}"
 
 # Unfortunately, some bash versions have a bug for which no fixed version is
 # currently released, even less deployed. Moreover, autoconf will try to

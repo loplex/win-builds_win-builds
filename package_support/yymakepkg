@@ -83,7 +83,7 @@ if [ -z "${DESCR:-""}" ] && [ -e "${CWD}/slack-desc" ]; then
 fi
 
 ( cat "${PKGNAM}.yypkg.script" 2>/dev/null || yypkg --makepkg --template 'yes' ) \
-| awk -f '/home/adrien/wb/build/win-builds/package_support/yymakepkg.awk' \
+| awk -f "${WIN_BUILDS_SOURCES}/package_support/yymakepkg.awk" \
   -v "PKG=${PKGNAM}${SUB:+-${SUB}}" \
   -v "HOST_TRIPLET=${HOST_TRIPLET}" \
   -v "TARGET_TRIPLET=${TARGET_TRIPLET:-""}" \

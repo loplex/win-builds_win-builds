@@ -29,7 +29,8 @@ export MIRROR := http://win-builds.org/$(VERSION)/tarballs
 
 -include Makefile.data.local
 
-PREFIX := $(shell cd $(dir $(lastword $(MAKEFILE_LIST))) && pwd)/deps/prefix
+WIN_BUILDS_SOURCES := $(shell cd $(dir $(lastword $(MAKEFILE_LIST))) && pwd)
+PREFIX := $(WIN_BUILDS_SOURCES)/deps/prefix
 export PATH := $(PREFIX)/bin:$(PATH)
 LD_LIBRARY_PATH := $(PREFIX)/lib:$(LD_LIBRARY_PATH)
 
