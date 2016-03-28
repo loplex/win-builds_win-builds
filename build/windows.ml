@@ -169,7 +169,7 @@ let do_adds builder =
 #use "slackbuilds.org/multimedia/ffmpeg/wb.ml"
 #use "slackware64-current/d/make/wb.ml"
 #use "slackware64-current/l/json-c/wb.ml"
-#use "slackbuilds.org/development/SDL2/wb.ml"
+#use "slackbuilds.org/libraries/SDL2/wb.ml"
 #use "slackware64-current/l/libxslt/wb.ml"
 #use "slackware64-current/l/libdvdread/wb.ml"
 #use "slackware64-current/l/libdvdnav/wb.ml"
