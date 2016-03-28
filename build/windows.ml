@@ -141,7 +141,7 @@ let do_adds builder =
 #use "slackbuilds.org/audio/opus/wb.ml"
 #use "slackware64-current/l/a52dec/wb.ml"
 #use "slackbuilds.org/libraries/libmpeg2/wb.ml"
-#use "slackbuilds.org/libraries/libsigc++/wb.ml"
+#use "slackware64-current/l/libsigc++/wb.ml"
 #use "slackbuilds.org/libraries/jansson/wb.ml"
 #use "slackbuilds.org/libraries/lame/wb.ml"
 
@@ -168,7 +168,7 @@ let do_adds builder =
 #use "slackbuilds.org/audio/speex/wb.ml"
 #use "slackbuilds.org/multimedia/ffmpeg/wb.ml"
 #use "slackware64-current/d/make/wb.ml"
-#use "slackbuilds.org/libraries/json-c/wb.ml"
+#use "slackware64-current/l/json-c/wb.ml"
 #use "slackbuilds.org/development/SDL2/wb.ml"
 #use "slackware64-current/l/libxslt/wb.ml"
 #use "slackware64-current/l/libdvdread/wb.ml"
