@@ -3,17 +3,17 @@ let do_adds builder =
   let add = Worker.register ~builder in
 
   let binutils_dependencies = [] in
-#use "slackware64-current/d/binutils/wb.ml"
+#use "slackware/d/binutils/wb.ml"
 #use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
 #use "slackbuilds.org/win-builds/mingw-w64/wb-headers.ml"
   let gcc_core_dependencies = [ binutils; mingw_w64_headers ] in
   let gcc_native_dependencies = [ "mpfr"; "gmp"; "libmpc" ] in
-#use "slackware64-current/d/gcc/wb-core.ml"
+#use "slackware/d/gcc/wb-core.ml"
 let mingw_w64_deps = [ binutils; gcc_core ] in
 #use "slackbuilds.org/win-builds/mingw-w64/wb-full.ml"
 (* pseh *)
   let gcc_full_dependencies = [ binutils; mingw_w64_full; gcc_core ] in
-#use "slackware64-current/d/gcc/wb-full.ml"
+#use "slackware/d/gcc/wb-full.ml"
 #use "slackbuilds.org/win-builds/flexdll/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
   let ocaml = ocaml_add

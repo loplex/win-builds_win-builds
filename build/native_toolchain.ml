@@ -2,15 +2,15 @@ let do_adds builder =
   let open Sources in
   let add = Worker.register ~builder in
 
-#use "slackware64-current/d/autoconf/wb.ml"
-#use "slackware64-current/d/libtool/wb.ml"
-#use "slackware64-current/d/automake/wb.ml"
-#use "slackware64-current/l/gmp/wb.ml"
-#use "slackware64-current/l/mpfr/wb.ml"
-#use "slackware64-current/l/libmpc/wb.ml"
+#use "slackware/d/autoconf/wb.ml"
+#use "slackware/d/libtool/wb.ml"
+#use "slackware/d/automake/wb.ml"
+#use "slackware/l/gmp/wb.ml"
+#use "slackware/l/mpfr/wb.ml"
+#use "slackware/l/libmpc/wb.ml"
 #use "slackbuilds.org/development/lua/wb.ml"
-#use "slackware64-current/d/pkg-config/wb-common.ml"
-#use "slackware64-current/d/pkg-config/wb-only-pkg-m4.ml"
+#use "slackware/d/pkg-config/wb-common.ml"
+#use "slackware/d/pkg-config/wb-only-pkg-m4.ml"
 #use "slackbuilds.org/win-builds/musl-private/wb.ml"
 #use "slackbuilds.org/development/luajit/wb.ml"
   let luajit = luajit_add ~dependencies:[ musl_private ] in
@@ -25,7 +25,7 @@ let do_adds builder =
 #use "slackbuilds.org/win-builds/examine/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
 let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
-#use "slackware64-current/a/file/wb.ml"
+#use "slackware/a/file/wb.ml"
   let file = file_add ~dependencies:[] in
 
 #extras

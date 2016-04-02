@@ -4,9 +4,9 @@ let do_adds builder =
 
   let _all =
 
-#use "slackware64-current/d/autoconf/wb.ml"
-#use "slackware64-current/d/libtool/wb.ml"
-#use "slackware64-current/d/automake/wb.ml"
+#use "slackware/d/autoconf/wb.ml"
+#use "slackware/d/libtool/wb.ml"
+#use "slackware/d/automake/wb.ml"
 #use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
 #use "slackbuilds.org/win-builds/mingw-w64/wb-headers.ml"
   let mingw_w64_full = mingw_w64_add ("mingw-w64", Some "full")
@@ -22,7 +22,7 @@ let do_adds builder =
 #use "slackbuilds.org/win-builds/win-iconv/wb.ml"
 #use "slackbuilds.org/win-builds/musl-private/wb.ml"
 #use "slackbuilds.org/win-builds/tre/wb.ml"
-#use "slackware64-current/a/gettext/wb.ml"
+#use "slackware/a/gettext/wb.ml"
     let gettext = add (gettext_name, gettext_variant)
       ~dir:gettext_dir
       ~dependencies:[ win_iconv ]
@@ -31,55 +31,55 @@ let do_adds builder =
       ~sources:gettext_sources
     in
 
-#use "slackware64-current/a/xz/wb-common.ml"
+#use "slackware/a/xz/wb-common.ml"
     let xz = xz_add ~name:"xz" ~variant:"regular" ~dependencies:[ gettext ] in
 
-#use "slackware64-current/l/zlib/wb-regular.ml"
-#use "slackware64-current/l/libjpeg-turbo/wb.ml"
-#use "slackware64-current/l/expat/wb-regular.ml"
-#use "slackware64-current/l/libpng/wb.ml"
-#use "slackware64-current/l/freetype/wb.ml"
-#use "slackware64-current/x/fontconfig/wb-common.ml"
+#use "slackware/l/zlib/wb-regular.ml"
+#use "slackware/l/libjpeg-turbo/wb.ml"
+#use "slackware/l/expat/wb-regular.ml"
+#use "slackware/l/libpng/wb.ml"
+#use "slackware/l/freetype/wb.ml"
+#use "slackware/x/fontconfig/wb-common.ml"
     let fontconfig = fontconfig_add ~variant:"regular" ~dependencies:[ freetype; expat ] in
 
-#use "slackware64-current/l/giflib/wb.ml"
-#use "slackware64-current/l/libtiff/wb-common.ml"
+#use "slackware/l/giflib/wb.ml"
+#use "slackware/l/libtiff/wb-common.ml"
     let libtiff = libtiff_add ~variant:"regular" ~dependencies:[ libjpeg_turbo; xz ] in
 #use "slackbuilds.org/development/lua/wb-regular.ml"
 #use "slackbuilds.org/development/luajit/wb.ml"
     let luajit = luajit_add ~dependencies:[] in
-#use "slackware64-current/n/ca-certificates/wb.ml"
-#use "slackware64-current/n/openssl/wb.ml"
-#use "slackware64-current/l/gmp/wb.ml"
-#use "slackware64-current/n/nettle/wb.ml"
-#use "slackware64-current/l/libtasn1/wb.ml"
-#use "slackware64-current/n/gnutls/wb.ml"
-#use "slackware64-current/n/curl/wb-regular.ml"
+#use "slackware/n/ca-certificates/wb.ml"
+#use "slackware/n/openssl/wb.ml"
+#use "slackware/l/gmp/wb.ml"
+#use "slackware/n/nettle/wb.ml"
+#use "slackware/l/libtasn1/wb.ml"
+#use "slackware/n/gnutls/wb.ml"
+#use "slackware/n/curl/wb-regular.ml"
 #use "slackbuilds.org/libraries/c-ares/wb.ml"
 #use "slackbuilds.org/win-builds/pixman/wb.ml"
-#use "slackware64-current/a/bzip2/wb.ml"
-#use "slackware64-current/l/pcre/wb.ml"
-#use "slackware64-current/l/libffi/wb.ml"
-#use "slackware64-current/l/glib2/wb.ml"
-#use "slackware64-current/d/pkg-config/wb-common.ml"
-#use "slackware64-current/d/pkg-config/wb.ml"
-#use "slackware64-current/l/cairo/wb.ml"
-#use "slackware64-current/l/atk/wb.ml"
-#use "slackware64-current/l/icu4c/wb.ml"
-#use "slackware64-current/l/harfbuzz/wb.ml"
-#use "slackware64-current/l/pango/wb.ml"
-#use "slackware64-current/l/gdk-pixbuf2/wb.ml"
-#use "slackware64-current/l/gtk+2/wb.ml"
-#use "slackware64-current/x/libepoxy/wb.ml"
-#use "slackware64-current/l/gtk+3/wb.ml"
-#use "slackware64-current/l/adwaita-icon-theme/wb.ml"
-#use "slackware64-current/xap/gucharmap/wb.ml"
-#use "slackware64-current/l/glib-networking/wb.ml"
-#use "slackware64-current/l/libxml2/wb.ml"
-#use "slackware64-current/l/libcroco/wb.ml"
+#use "slackware/a/bzip2/wb.ml"
+#use "slackware/l/pcre/wb.ml"
+#use "slackware/l/libffi/wb.ml"
+#use "slackware/l/glib2/wb.ml"
+#use "slackware/d/pkg-config/wb-common.ml"
+#use "slackware/d/pkg-config/wb.ml"
+#use "slackware/l/cairo/wb.ml"
+#use "slackware/l/atk/wb.ml"
+#use "slackware/l/icu4c/wb.ml"
+#use "slackware/l/harfbuzz/wb.ml"
+#use "slackware/l/pango/wb.ml"
+#use "slackware/l/gdk-pixbuf2/wb.ml"
+#use "slackware/l/gtk+2/wb.ml"
+#use "slackware/x/libepoxy/wb.ml"
+#use "slackware/l/gtk+3/wb.ml"
+#use "slackware/l/adwaita-icon-theme/wb.ml"
+#use "slackware/xap/gucharmap/wb.ml"
+#use "slackware/l/glib-networking/wb.ml"
+#use "slackware/l/libxml2/wb.ml"
+#use "slackware/l/libcroco/wb.ml"
 
     let gettext_tools = add ("gettext-tools", None)
-      ~dir:"slackware64-current/d"
+      ~dir:"slackware/d"
       (* check that it indeed depends on gettext *)
       ~dependencies:[ libcroco; gettext; glib2; libxml2; expat; (* unistring; libpth *) ]
       ~version:gettext_version
@@ -87,62 +87,62 @@ let do_adds builder =
       ~sources:gettext_sources
     in
 
-#use "slackware64-current/ap/sqlite/wb.ml"
-#use "slackware64-current/l/libsoup/wb.ml"
-#use "slackware64-current/d/gperf/wb.ml"
-#use "slackware64-current/d/bison/wb.ml"
-#use "slackware64-current/l/mpfr/wb.ml"
-#use "slackware64-current/l/libmpc/wb.ml"
-#use "slackware64-current/l/libogg/wb.ml"
-#use "slackware64-current/l/libvorbis/wb.ml"
-#use "slackware64-current/l/libtheora/wb.ml"
-#use "slackware64-current/l/fribidi/wb.ml"
+#use "slackware/ap/sqlite/wb.ml"
+#use "slackware/l/libsoup/wb.ml"
+#use "slackware/d/gperf/wb.ml"
+#use "slackware/d/bison/wb.ml"
+#use "slackware/l/mpfr/wb.ml"
+#use "slackware/l/libmpc/wb.ml"
+#use "slackware/l/libogg/wb.ml"
+#use "slackware/l/libvorbis/wb.ml"
+#use "slackware/l/libtheora/wb.ml"
+#use "slackware/l/fribidi/wb.ml"
 #use "slackbuilds.org/development/check/wb.ml"
-#use "slackware64-current/a/dbus/wb-common.ml"
+#use "slackware/a/dbus/wb-common.ml"
     let dbus = dbus_add ~variant:"regular" ~dependencies:[ expat ] in
 
-#use "slackware64-current/l/libarchive/wb-common.ml"
+#use "slackware/l/libarchive/wb-common.ml"
     let libarchive = libarchive_add ~variant:"regular" ~dependencies:[ nettle; tre; libxml2 ] in
 
-#use "slackware64-current/n/wget/wb.ml"
+#use "slackware/n/wget/wb.ml"
     let binutils_dependencies = [ zlib ] in
-#use "slackware64-current/d/binutils/wb.ml"
+#use "slackware/d/binutils/wb.ml"
     let gcc_core_dependencies = [] in
     let gcc_native_dependencies = [] in
-#use "slackware64-current/d/gcc/wb-core.ml"
+#use "slackware/d/gcc/wb-core.ml"
     let gcc_full_dependencies = [ mpfr; gmp; libmpc ] in
-#use "slackware64-current/d/gcc/wb-full.ml"
+#use "slackware/d/gcc/wb-full.ml"
 
 #use "slackbuilds.org/multimedia/x264/wb.ml"
-#use "slackware64-current/l/libao/wb.ml"
-#use "slackware64-current/ap/flac/wb.ml"
-#use "slackware64-current/l/lcms/wb.ml"
-#use "slackware64-current/l/lcms2/wb.ml"
+#use "slackware/l/libao/wb.ml"
+#use "slackware/ap/flac/wb.ml"
+#use "slackware/l/lcms/wb.ml"
+#use "slackware/l/lcms2/wb.ml"
 #use "slackbuilds.org/libraries/bullet/wb.ml"
-#use "slackware64-current/l/openjpeg/wb.ml"
-#use "slackware64-current/l/libsndfile/wb.ml"
-#use "slackware64-current/l/orc/wb.ml"
-#use "slackware64-current/l/gstreamer/wb.ml"
-#use "slackware64-current/l/gst-plugins-base/wb.ml"
-#use "slackware64-current/l/gst-plugins-good/wb.ml"
-#use "slackware64-current/n/libgpg-error/wb.ml"
-#use "slackware64-current/n/libgcrypt/wb.ml"
+#use "slackware/l/openjpeg/wb.ml"
+#use "slackware/l/libsndfile/wb.ml"
+#use "slackware/l/orc/wb.ml"
+#use "slackware/l/gstreamer/wb.ml"
+#use "slackware/l/gst-plugins-base/wb.ml"
+#use "slackware/l/gst-plugins-good/wb.ml"
+#use "slackware/n/libgpg-error/wb.ml"
+#use "slackware/n/libgcrypt/wb.ml"
 #use "slackbuilds.org/libraries/efl/wb-common.ml"
 #use "slackbuilds.org/libraries/efl/wb-common-git.ml"
 #use "slackbuilds.org/libraries/efl/wb-regular.ml"
 #use "slackbuilds.org/libraries/efl/wb-regular-git.ml"
 #use "slackbuilds.org/libraries/elementary/wb-regular.ml"
 #use "slackbuilds.org/libraries/elementary/wb-regular-git.ml"
-#use "slackware64-current/d/gdb/wb.ml"
-#use "slackware64-current/l/libmad/wb.ml"
-#use "slackware64-current/l/libid3tag/wb.ml"
-#use "slackware64-current/ap/madplay/wb.ml"
-#use "slackware64-current/l/djvulibre/wb.ml"
-#use "slackware64-current/x/dejavu-fonts-ttf/wb.ml"
+#use "slackware/d/gdb/wb.ml"
+#use "slackware/l/libmad/wb.ml"
+#use "slackware/l/libid3tag/wb.ml"
+#use "slackware/ap/madplay/wb.ml"
+#use "slackware/l/djvulibre/wb.ml"
+#use "slackware/x/dejavu-fonts-ttf/wb.ml"
 #use "slackbuilds.org/audio/opus/wb.ml"
-#use "slackware64-current/l/a52dec/wb.ml"
+#use "slackware/l/a52dec/wb.ml"
 #use "slackbuilds.org/libraries/libmpeg2/wb.ml"
-#use "slackware64-current/l/libsigc++/wb.ml"
+#use "slackware/l/libsigc++/wb.ml"
 #use "slackbuilds.org/libraries/jansson/wb.ml"
 #use "slackbuilds.org/libraries/lame/wb.ml"
 
@@ -166,30 +166,30 @@ let do_adds builder =
       ]
     in *)
 
-#use "slackware64-current/l/speexdsp/wb.ml"
+#use "slackware/l/speexdsp/wb.ml"
 #use "slackbuilds.org/audio/speex/wb.ml"
 #use "slackbuilds.org/multimedia/ffmpeg/wb.ml"
-#use "slackware64-current/d/make/wb.ml"
-#use "slackware64-current/l/json-c/wb.ml"
+#use "slackware/d/make/wb.ml"
+#use "slackware/l/json-c/wb.ml"
 #use "slackbuilds.org/libraries/SDL2/wb.ml"
-#use "slackware64-current/l/libxslt/wb.ml"
-#use "slackware64-current/l/libdvdread/wb.ml"
-#use "slackware64-current/l/libdvdnav/wb.ml"
+#use "slackware/l/libxslt/wb.ml"
+#use "slackware/l/libdvdread/wb.ml"
+#use "slackware/l/libdvdnav/wb.ml"
 #use "slackbuilds.org/libraries/libdvdcss/wb.ml"
-#use "slackware64-current/ap/sox/wb.ml"
-#use "slackware64-current/l/babl/wb.ml"
-#use "slackware64-current/l/gegl/wb.ml"
-#use "slackware64-current/xap/gimp/wb.ml"
+#use "slackware/ap/sox/wb.ml"
+#use "slackware/l/babl/wb.ml"
+#use "slackware/l/gegl/wb.ml"
+#use "slackware/xap/gimp/wb.ml"
 #use "slackbuilds.org/multimedia/vlc/wb.ml"
-#use "slackware64-current/l/db48/wb.ml"
-#use "slackware64-current/l/ncurses/wb.ml"
-#use "slackware64-current/l/readline/wb.ml"
-#use "slackware64-current/a/file/wb.ml"
+#use "slackware/l/db48/wb.ml"
+#use "slackware/l/ncurses/wb.ml"
+#use "slackware/l/readline/wb.ml"
+#use "slackware/a/file/wb.ml"
     let file = file_add ~dependencies:[ tre ] in
 #use "slackbuilds.org/win-builds/rufus/wb.ml"
 #use "slackbuilds.org/win-builds/examine/wb.ml"
-#use "slackware64-current/d/python/wb.ml"
-#use "slackware64-current/l/boost/wb.ml"
+#use "slackware/d/python/wb.ml"
+#use "slackware/l/boost/wb.ml"
 #use "slackbuilds.org/win-builds/zz_config/wb.ml"
 
 #extras
@@ -228,7 +228,7 @@ let do_adds builder =
       (* NOTE: Wget can depend on libidn (wget's license has to be checked). *)
       (* NOTE: Also, the gnulib MSVC bits don't compile; maybe an update would
        *       fix them. *)
-      ~dir:"slackware64-current/l"
+      ~dir:"slackware/l"
       ~dependencies:[]
       ~version:"1.25"
       ~build:1
@@ -241,7 +241,7 @@ let do_adds builder =
     (* NOTE: has an enum field "SEARCH_ALL" which conflicts with a #define from
      *       Windows and is public API. *)
     let _libcddb = add ("libcddb", None)
-      ~dir:"slackware64-current/l"
+      ~dir:"slackware/l"
       ~dependencies:[]
       ~version:"1.3.2"
       ~build:1
@@ -251,7 +251,7 @@ let do_adds builder =
     in
 
     let _libcdio = add ("libcdio", None)
-      ~dir:"slackware64-current/l"
+      ~dir:"slackware/l"
       ~dependencies:[ _libcddb ]
       ~version:"0.83"
       ~build:1
@@ -281,27 +281,27 @@ let do_adds builder =
 
     (* 
       let sdl:base = add ("sdl:base", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let sdl:image = add ("sdl:image", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let sdl:mixer = add ("sdl:mixer", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let sdl:net = add ("sdl:net", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let sdl:ttf = add ("sdl:ttf", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let dbus-glib = add ("dbus-glib", None)
-        ~dir:"# slackware64-current/l"
+        ~dir:"# slackware/l"
         ~dependencies:[]
 
       let webkitgtk = add ("webkitgtk", None)
@@ -310,11 +310,11 @@ let do_adds builder =
 
       (* includes <pwd.h> *)
       let geeqie = add ("geeqie", None)
-        ~dir:"slackware64-current/xap"
+        ~dir:"slackware/xap"
         ~dependencies:[]
 
       let cdparanoia = add ("cdparanoia", None)
-        ~dir:"slackware64-current/ap"
+        ~dir:"slackware/ap"
         ~dependencies:[ libcdio? ]
 
       let fdk_aac = add ("fdk-aac", None)
@@ -458,29 +458,29 @@ let do_adds_ministat () =
 #use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
 #use "slackbuilds.org/win-builds/musl-private/wb.ml"
 #use "slackbuilds.org/win-builds/tre/wb.ml"
-#use "slackware64-current/l/expat/wb-regular.ml"
-#use "slackware64-current/a/dbus/wb-common.ml"
+#use "slackware/l/expat/wb-regular.ml"
+#use "slackware/a/dbus/wb-common.ml"
   let dbus = dbus_add ~variant:"yypkg" ~dependencies:[ expat ] in
 
-#use "slackware64-current/a/xz/wb-common.ml"
+#use "slackware/a/xz/wb-common.ml"
   let xz = xz_add ~name:"xz" ~variant:"yypkg" ~dependencies:[] in
 
-#use "slackware64-current/l/libarchive/wb-common.ml"
+#use "slackware/l/libarchive/wb-common.ml"
   let libarchive = libarchive_add ~variant:"yypkg" ~dependencies:[ xz ] in
 
-#use "slackware64-current/l/zlib/wb-regular.ml"
-#use "slackware64-current/l/libpng/wb.ml"
-#use "slackware64-current/l/freetype/wb.ml"
-#use "slackware64-current/l/gmp/wb.ml"
-#use "slackware64-current/n/nettle/wb.ml"
-#use "slackware64-current/l/libtasn1/wb.ml"
-#use "slackware64-current/n/ca-certificates/wb.ml"
+#use "slackware/l/zlib/wb-regular.ml"
+#use "slackware/l/libpng/wb.ml"
+#use "slackware/l/freetype/wb.ml"
+#use "slackware/l/gmp/wb.ml"
+#use "slackware/n/nettle/wb.ml"
+#use "slackware/l/libtasn1/wb.ml"
+#use "slackware/n/ca-certificates/wb.ml"
 #use "slackbuilds.org/win-builds/win-iconv/wb.ml"
-#use "slackware64-current/n/curl/wb-yypkg.ml"
+#use "slackware/n/curl/wb-yypkg.ml"
 #use "slackbuilds.org/libraries/c-ares/wb.ml"
 #use "slackbuilds.org/development/lua/wb-regular.ml"
-#use "slackware64-current/l/libjpeg-turbo/wb.ml"
-#use "slackware64-current/x/fontconfig/wb-common.ml"
+#use "slackware/l/libjpeg-turbo/wb.ml"
+#use "slackware/x/fontconfig/wb-common.ml"
     let fontconfig = fontconfig_add ~variant:"yypkg" ~dependencies:[ freetype ] in
 #use "slackbuilds.org/libraries/efl/wb-common.ml"
 #use "slackbuilds.org/libraries/efl/wb-yypkg.ml"
@@ -517,7 +517,7 @@ let do_adds_ministat () =
     ]
   in
 
-#use "slackware64-current/x/dejavu-fonts-ttf/wb.ml"
+#use "slackware/x/dejavu-fonts-ttf/wb.ml"
 #use "slackbuilds.org/win-builds/win-builds-installer/wb.ml"
   ignore win_builds_installer
 
