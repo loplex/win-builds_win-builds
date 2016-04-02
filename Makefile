@@ -3,11 +3,10 @@ include Makefile.data
 default: build
 
 build_real:
-	ocaml str.cma ./win-builds/build/amalgation.ml \
-	  > ./win-builds/build/amalgated.ml \
+	ocaml str.cma build/amalgation.ml > build/amalgated.ml \
 	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
 	  ocaml unix.cma str.cma -I +threads threads.cma \
-		win-builds/build/amalgated.ml $(VERSION)
+		build/amalgated.ml $(VERSION)
 
 ifneq ($(WITH_LXC),)
 
