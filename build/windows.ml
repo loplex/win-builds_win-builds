@@ -70,6 +70,7 @@ let do_adds builder =
 #use "slackware64-current/l/pango/wb.ml"
 #use "slackware64-current/l/gdk-pixbuf2/wb.ml"
 #use "slackware64-current/l/gtk+2/wb.ml"
+#use "slackware64-current/x/libepoxy/wb.ml"
 #use "slackware64-current/l/gtk+3/wb.ml"
 #use "slackware64-current/l/adwaita-icon-theme/wb.ml"
 #use "slackware64-current/xap/gucharmap/wb.ml"
@@ -165,6 +166,7 @@ let do_adds builder =
       ]
     in *)
 
+#use "slackware64-current/l/speexdsp/wb.ml"
 #use "slackbuilds.org/audio/speex/wb.ml"
 #use "slackbuilds.org/multimedia/ffmpeg/wb.ml"
 #use "slackware64-current/d/make/wb.ml"
