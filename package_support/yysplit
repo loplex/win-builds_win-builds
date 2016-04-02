@@ -25,6 +25,10 @@ cd "${PKG}/${PREFIX}"
 
 t="$(file "${BINARY}")"
 case "${t})" in
+  *Mono/.Net\ assembly*)
+    echo "Type \"${t}\" is not handled when it comes to stripping." 1>&2
+    exit 1
+    ;;
   *PE32\ executable*)
     OBJCOPY='i686-w64-mingw32-objcopy'
     ;;
