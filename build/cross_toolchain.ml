@@ -4,17 +4,17 @@ let do_adds builder =
 
   let binutils_dependencies = [] in
 #use "slackware64-current/d/binutils/wb.ml"
-#use "mingw/mingw-w64/wb-common.ml"
-#use "mingw/mingw-w64/wb-headers.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-headers.ml"
   let gcc_core_dependencies = [ binutils; mingw_w64_headers ] in
   let gcc_native_dependencies = [ "mpfr"; "gmp"; "libmpc" ] in
 #use "slackware64-current/d/gcc/wb-core.ml"
 let mingw_w64_deps = [ binutils; gcc_core ] in
-#use "mingw/mingw-w64/wb-full.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-full.ml"
 (* pseh *)
   let gcc_full_dependencies = [ binutils; mingw_w64_full; gcc_core ] in
 #use "slackware64-current/d/gcc/wb-full.ml"
-#use "mingw/flexdll/wb.ml"
+#use "slackbuilds.org/win-builds/flexdll/wb.ml"
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
   let ocaml = ocaml_add
     ~dependencies:[ binutils; flexdll; gcc_full; mingw_w64_full ]
@@ -27,7 +27,7 @@ let mingw_w64_deps = [ binutils; gcc_core ] in
     ~cross_deps:[]
     ~native_deps:[]
   in
-#use "mingw/zz_config/wb.ml"
+#use "slackbuilds.org/win-builds/zz_config/wb.ml"
 
 #extras
 

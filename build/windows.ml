@@ -7,21 +7,21 @@ let do_adds builder =
 #use "slackware64-current/d/autoconf/wb.ml"
 #use "slackware64-current/d/libtool/wb.ml"
 #use "slackware64-current/d/automake/wb.ml"
-#use "mingw/mingw-w64/wb-common.ml"
-#use "mingw/mingw-w64/wb-headers.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-headers.ml"
   let mingw_w64_full = mingw_w64_add ("mingw-w64", Some "full")
     ~build:2
     ~dependencies:[]
   in
-#use "mingw/gendef/wb.ml"
-#use "mingw/genidl/wb.ml"
-#use "mingw/genpeimg/wb.ml"
-#use "mingw/libmangle/wb.ml"
-#use "mingw/winstorecompat/wb.ml"
-#use "mingw/widl/wb.ml"
-#use "mingw/win-iconv/wb.ml"
-#use "mingw/musl-private/wb.ml"
-#use "mingw/tre/wb.ml"
+#use "slackbuilds.org/win-builds/gendef/wb.ml"
+#use "slackbuilds.org/win-builds/genidl/wb.ml"
+#use "slackbuilds.org/win-builds/genpeimg/wb.ml"
+#use "slackbuilds.org/win-builds/libmangle/wb.ml"
+#use "slackbuilds.org/win-builds/winstorecompat/wb.ml"
+#use "slackbuilds.org/win-builds/widl/wb.ml"
+#use "slackbuilds.org/win-builds/win-iconv/wb.ml"
+#use "slackbuilds.org/win-builds/musl-private/wb.ml"
+#use "slackbuilds.org/win-builds/tre/wb.ml"
 #use "slackware64-current/a/gettext/wb.ml"
     let gettext = add (gettext_name, gettext_variant)
       ~dir:gettext_dir
@@ -56,7 +56,7 @@ let do_adds builder =
 #use "slackware64-current/n/gnutls/wb.ml"
 #use "slackware64-current/n/curl/wb-regular.ml"
 #use "slackbuilds.org/libraries/c-ares/wb.ml"
-#use "mingw/pixman/wb.ml"
+#use "slackbuilds.org/win-builds/pixman/wb.ml"
 #use "slackware64-current/a/bzip2/wb.ml"
 #use "slackware64-current/l/pcre/wb.ml"
 #use "slackware64-current/l/libffi/wb.ml"
@@ -186,11 +186,11 @@ let do_adds builder =
 #use "slackware64-current/l/readline/wb.ml"
 #use "slackware64-current/a/file/wb.ml"
     let file = file_add ~dependencies:[ tre ] in
-#use "mingw/rufus/wb.ml"
-#use "mingw/examine/wb.ml"
+#use "slackbuilds.org/win-builds/rufus/wb.ml"
+#use "slackbuilds.org/win-builds/examine/wb.ml"
 #use "slackware64-current/d/python/wb.ml"
 #use "slackware64-current/l/boost/wb.ml"
-#use "mingw/zz_config/wb.ml"
+#use "slackbuilds.org/win-builds/zz_config/wb.ml"
 
 #extras
 
@@ -455,9 +455,9 @@ let do_adds_ministat () =
       ~sha1:"79a164edaa5421e987883a87a4643a86cac8c971"
   in
 
-#use "mingw/mingw-w64/wb-common.ml"
-#use "mingw/musl-private/wb.ml"
-#use "mingw/tre/wb.ml"
+#use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
+#use "slackbuilds.org/win-builds/musl-private/wb.ml"
+#use "slackbuilds.org/win-builds/tre/wb.ml"
 #use "slackware64-current/l/expat/wb-regular.ml"
 #use "slackware64-current/a/dbus/wb-common.ml"
   let dbus = dbus_add ~variant:"yypkg" ~dependencies:[ expat ] in
@@ -475,7 +475,7 @@ let do_adds_ministat () =
 #use "slackware64-current/n/nettle/wb.ml"
 #use "slackware64-current/l/libtasn1/wb.ml"
 #use "slackware64-current/n/ca-certificates/wb.ml"
-#use "mingw/win-iconv/wb.ml"
+#use "slackbuilds.org/win-builds/win-iconv/wb.ml"
 #use "slackware64-current/n/curl/wb-yypkg.ml"
 #use "slackbuilds.org/libraries/c-ares/wb.ml"
 #use "slackbuilds.org/development/lua/wb-regular.ml"
@@ -518,7 +518,7 @@ let do_adds_ministat () =
   in
 
 #use "slackware64-current/x/dejavu-fonts-ttf/wb.ml"
-#use "mingw/win-builds-installer/wb.ml"
+#use "slackbuilds.org/win-builds/win-builds-installer/wb.ml"
   ignore win_builds_installer
 
 
