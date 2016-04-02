@@ -3,8 +3,7 @@ include Makefile.data
 default: build
 
 build_real:
-	cd .. \
-	&& ocaml str.cma ./win-builds/build/amalgation.ml \
+	ocaml str.cma ./win-builds/build/amalgation.ml \
 	  > ./win-builds/build/amalgated.ml \
 	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
 	  ocaml unix.cma str.cma -I +threads threads.cma \
@@ -17,7 +16,7 @@ LXC_EXECUTE = lxc-execute -f $(shell pwd)/lxc.conf -n win-builds-$(VERSION) -s l
 
 build:
 	: > lxc_mount
-	P=$(shell cd .. && pwd)/opt; \
+	P="$(shell pwd)/opt"; \
 	for f in native_toolchain {cross_toolchain,windows}_{32,64}; do \
 	  mkdir -p "$${P}/$${f}"; \
 	  echo "$${P}/$${f} /opt/$${f} none bind,create=dir 0 0" >> lxc_mount; \
@@ -25,7 +24,7 @@ build:
 
 else
 
-YYBASEPATH ?= $(shell cd .. && pwd)/opt
+YYBASEPATH ?= $(shell pwd)/opt
 LXC_EXECUTE =
 
 build:
@@ -53,7 +52,7 @@ tarballs-upload:
 	LOGLEVEL=dbg DRYRUN=1 $(MAKE) WINDOWS=all WINDOWS_MINISTAT=yypkg 2>&1 \
 	  | sed -nu -e 's;^ [^ ]\+ -> source=\(.\+/.\+/.\+\);\1; p' -e '/^File\>/ w /dev/stderr' \
 	  | tee file_list
-	rsync -avP --chmod=D755,F644 --delete-after --files-from=file_list .. $(WEB)/$(VERSION)/tarballs/$$dir/
+	rsync -avP --chmod=D755,F644 --delete-after --files-from=file_list . $(WEB)/$(VERSION)/tarballs/$$dir/
 	rm file_list
 
 installer:
@@ -62,7 +61,7 @@ installer:
 	export YYPREFIX="$$(pwd)/installer"; \
 	yypkg --init; \
 	rm -f installer/bin/yypkg; \
-	cd ../$(VERSION)/packages/windows_32; \
+	cd $(VERSION)/packages/windows_32; \
 	for p in dbus*--* fontconfig*--* harfbuzz*--* c-ares* winpthreads* gcc* zlib* win-iconv* gettext* lua* libjpeg* libpng* expat* freetype* fribidi* efl* elementary* dejavu-fonts-ttf* yypkg-$(YYPKG_VERSION)-*; do \
 	  yypkg --install "$${p}"; \
 	done
@@ -85,7 +84,7 @@ installer:
 	  | xz -8vv > win-builds-$(VERSION).tar.xz
 	(cat installer/bin/yypkg_wrapper.exe; \
 	  cat win-builds-$(VERSION).tar.xz; \
-	  ../yypkg/src/wrapper.native $$(stat --printf='%s' win-builds-$(VERSION).tar.xz)) \
+	  ./yypkg/src/wrapper.native $$(stat --printf='%s' win-builds-$(VERSION).tar.xz)) \
 	  > win-builds-$(VERSION).exe
 
 installer-upload: installer
@@ -96,7 +95,7 @@ release-upload:
 	  --exclude='memo_pkg' \
 	  --delete-after \
 	  --no-perms \
-	  ../$(VERSION)/{logs,packages} \
+	  $(VERSION)/{logs,packages} \
 	  $(WEB)/$(VERSION)/
 
 
