@@ -23,6 +23,7 @@ let do_adds builder =
 #use "slackbuilds.org/win-builds/genpeimg/wb.ml"
 #use "slackbuilds.org/win-builds/widl/wb.ml"
 #use "slackbuilds.org/win-builds/examine/wb.ml"
+  let examine = examine_add ~dependencies:[] in
 #use "slackbuilds.org/ocaml/ocaml/wb.ml"
 let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
 #use "slackware/a/file/wb.ml"

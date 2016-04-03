@@ -188,6 +188,7 @@ let do_adds builder =
     let file = file_add ~dependencies:[ tre ] in
 #use "slackbuilds.org/win-builds/rufus/wb.ml"
 #use "slackbuilds.org/win-builds/examine/wb.ml"
+    let examine = examine_add ~dependencies:[ binutils; gcc_full ] in
 #use "slackware/d/python/wb.ml"
 #use "slackware/l/boost/wb.ml"
 #use "slackbuilds.org/win-builds/zz_config/wb.ml"
