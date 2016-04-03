@@ -193,37 +193,31 @@ module Tarball = struct
     get (file, sha1)
 end
 
-let get =
-  let chan_send = Event.new_channel () in
-  let chan_ack = Event.new_channel () in
-  ignore (Thread.create (fun () ->
-    let past_requests = ref [] in
-    while true do
-      Event.sync (Event.send chan_ack (
-        try
-          let (c, r) as p = Event.sync (Event.receive chan_send) in
-          if not (List.mem p !past_requests) then (
-            log inf "Getting sources for %S.\n%!" c.package;
-            ListLabels.iter r.sources ~f:(function
-              | WB _ -> ()
-              | Tarball y -> Tarball.get ~package:c.package y
-              | Git.T y -> Git.get y
-              | Patch y -> Patch.get y
-              | _ -> assert false
-            );
-            past_requests := p :: !past_requests;
+let get l =
+  let obtained_sources = ref [] in
+  let obtain p = List.assoc p !obtained_sources in
+  let m = Mutex.create () in
+  let cond = Condition.create () in
+  ignore (Thread.create (
+    List.iter (fun ((c, r) as p) ->
+      Mutex.lock m;
+      (try
+        if not (try ignore (obtain p); true with Not_found -> false) then (
+          ListLabels.iter r.sources ~f:(function
+            | WB _ -> ()
+            | Tarball y -> Tarball.get ~package:c.package y
+            | Git.T y -> Git.get y
+            | Patch y -> Patch.get y
+            | _ -> assert false
           );
-          None
-        with exn ->
-          Some exn
-      ))
-    done
-  ) ());
-  (fun l ->
-    Event.sync (Event.send chan_send l);
-    match Event.sync (Event.receive chan_ack) with
-    | None -> ()
-    | Some exn -> raise exn)
+          obtained_sources := (p, None) :: !obtained_sources;
+        );
+      with exn ->
+        obtained_sources := (p, Some exn) :: !obtained_sources;
+      );
+      Condition.broadcast cond
+  )));
+  (fun p -> while (try obtain p; false with Not_found -> true) do Condition.wait cond m done; obtain p)
 
 let version_of_package package =
   let o = run_and_read [|

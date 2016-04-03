@@ -8,6 +8,13 @@ open Lib
 
 let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
 
+let p_update ~dict ~p:(c, r) =
+  c, {
+    r with
+    sources = List.map (substitute_variables_sources ~dir:r.dir ~package:c.package ~dict) r.sources;
+    outputs = List.map (substitute_variables ~dict) r.outputs;
+  }
+
 let dict0 ~builder ~p:(c, (r : Config.Package.real)) =
   [
     "VERSION", "${VERSION}";
@@ -34,7 +41,15 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     string_of_bool devshell;
   |] ()
 
-let build_one_package ~builder ~outputs ~env ~p:((c, r) as p) ~log =
+let build_one_package ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
+  (match get p with None -> () | Some exn -> raise exn);
+  let p =
+    if r.version = "git" then
+      let ((c, r) as p) = c, { r with version = Sources.Git.version ~r } in
+      p_update ~dict:[ "VERSION", r.version ] ~p
+    else
+      p
+  in
   let run command = run ~stdout:log ~stderr:log ~env command in
   (try run_build_shell ~devshell:false ~run ~p with e ->
     List.iter (fun output -> try Unix.unlink output with _ -> ()) outputs;
@@ -47,28 +62,7 @@ let build_one_package ~builder ~outputs ~env ~p:((c, r) as p) ~log =
 let build_one_devshell ~env ~p =
   run_build_shell ~devshell:true ~run:(run ~env) ~p
 
-let build_one ~env ~builder ~log ~p:((c, r) as p) =
-  let dict0 = dict0 ~builder ~p in
-  let p_update ~dict ~p:(c, r) =
-    c, {
-      r with
-      sources = List.map (substitute_variables_sources ~dir:r.dir ~package:c.package ~dict) r.sources;
-      outputs = List.map (substitute_variables ~dict) r.outputs;
-    }
-  in
-  let ((c, r) as p) =
-    if r.version <> "git" then (
-      let p = p_update ~dict:(("VERSION", r.version) :: dict0) ~p in
-      Sources.get p;
-      p
-    )
-    else (
-      let ((c, r) as p) = p_update ~dict:dict0 ~p in
-      Sources.get p;
-      let ((c, r) as p) = c, { r with version = Sources.Git.version ~r } in
-      p_update ~dict:[ "VERSION", r.version ] ~p
-    )
-  in
+let build_one ~get ~env ~builder ~log ~p:((c, r) as p) =
   if r.sources <> [] then
   (
     ListLabels.iter r.sources ~f:(function
@@ -91,7 +85,7 @@ let build_one ~env ~builder ~log ~p:((c, r) as p) =
         progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
         ignore (Unix.lseek log 0 Unix.SEEK_SET);
         Unix.ftruncate log 0;
-        build_one_package ~builder ~outputs ~env ~p ~log;
+        build_one_package ~get ~builder ~outputs ~env ~p ~log;
         true
       )
     )
@@ -160,6 +154,13 @@ let register ~builder =
     else
       "${PACKAGE}-${VERSION}-${BUILD}-${HOST_TRIPLET}.txz"
   in
+  let update_names ~p:((c, r) as p) =
+    let dict0 = dict0 ~builder ~p in
+    let dict =
+      if r.version <> "git" then ("VERSION", r.version) :: dict0 else dict0
+    in
+    p_update ~dict ~p
+  in
   fun
     ?(outputs = [ default_output ])
     ?(native_deps = [])
@@ -197,7 +198,7 @@ let register ~builder =
          * it makes no sense to have other packages depend on it. *)
         (* TODO: s/Real/Devshell ? *)
         ignore (add_aux (Real (( { c with devshell = true } ), r)));
-        add_aux (Real (c, r))
+        add_aux (Real (update_names ~p:(c, r)))
     | true, None ->
         add_aux (Virtual c)
     | false, Some alternatives ->

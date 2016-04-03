@@ -7,13 +7,12 @@ let log ~builder ~p:((c, r) as p) =
   let path = builder.logs ^/ (to_name c) in
   path, Unix.openfile path [ Unix.O_RDWR; Unix.O_CREAT; ] 0o644
 
-let build ~failer builder =
+let build ~get ~failer builder =
   let did_something = ref false in
-  let packages = List.filter (fun p -> (c_of p).to_build) builder.packages in
-  (if packages <> [] then (
+  (if builder.packages <> [] then (
     (* progress "[%s] Checking %s\n%!"
       builder.prefix.nickname
-      (String.concat ", " (List.map to_name packages)); *)
+      (String.concat ", " (List.map to_name builder.packages)); *)
     let env = Worker.build_env builder in
     let rec aux = function
       | Virtual { package = "download" } :: tl ->
@@ -23,10 +22,10 @@ let build ~failer builder =
           let log_path, log_fd = log ~p ~builder in
           try
             did_something :=
-              (Worker.build_one ~builder ~env ~p ~log:log_fd) || !did_something;
+              (Worker.build_one ~get ~builder ~env ~p ~log:log_fd) || !did_something;
             if !failer then
               Lib.log Lib.cri
-                "[%s] Aborting because another thread did so.\n%!"
+                "[%s] Aborting because another thread failed.\n%!"
                 builder.prefix.nickname
             else
               aux tl
@@ -48,7 +47,7 @@ let build ~failer builder =
       | [] ->
           ()
     in
-    aux packages
+    aux builder.packages
   ));
   if !did_something && not dryrun then (
     progress "[%s] Setting up repository.\n%!" builder.prefix.nickname;
@@ -62,10 +61,17 @@ let build ~failer builder =
  * systems. *)
 let () = ignore (Unix.umask 0o022)
 
+let builders =
+  Builders.[
+    [ Native_toolchain.builder ];
+    [ Cross_toolchain.builder_32; Cross_toolchain.builder_64 ];
+    [ Windows.builder_32; Windows.builder_64; Windows.builder_ministat ];
+  ]
+
 let () =
-  let build builders =
+  let build ~get builders =
     let failer = ref false in
-    let run_builder builder = Thread.create (build ~failer) builder in
+    let run_builder builder = Thread.create (build ~get ~failer) builder in
     let enough_ram = Sys.command "awk -F' ' '/MemAvailable/ { if ($2 > (2*1024*1024)) { exit 0 } else { exit 1 } }' /proc/meminfo" in
     (if enough_ram = 0 then
       List.iter Thread.join (List.map run_builder builders)
@@ -76,8 +82,8 @@ let () =
     );
     (if !failer then failwith "Build failed.")
   in
-  List.iter build Builders.[
-    [ Native_toolchain.builder ];
-    [ Cross_toolchain.builder_32; Cross_toolchain.builder_64 ];
-    [ Windows.builder_32; Windows.builder_64; Windows.builder_ministat ];
-  ]
+  let builders = List.map (List.map (fun b ->
+    { b with packages = List.filter (fun p -> (c_of p).to_build) b.packages }))
+  builders in
+  let get = Sources.get (List.flatten builders) in
+  List.iter (build ~get) builders
