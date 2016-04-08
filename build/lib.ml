@@ -25,11 +25,6 @@ let log level =
 let cond_log level b s =
   (if not b then log level s); b
 
-let progress = Printf.printf
-
-let cond_progress b s =
-  (if not b then progress s); b
-
 let sp = Printf.sprintf
 
 type command = {

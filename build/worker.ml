@@ -41,8 +41,10 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     string_of_bool devshell;
   |] ()
 
-let build_one_package ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
+let build_one_package ~progress ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
+  progress ~flush:false (Lib.sp "%s(source)" (to_name c));
   (match get p with None -> () | Some exn -> raise exn);
+  progress ~flush:false (Lib.sp "%s(build)" (to_name c));
   let p =
     if r.version = "git" then
       let ((c, r) as p) = c, { r with version = Sources.Git.version ~r } in
@@ -55,6 +57,7 @@ let build_one_package ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
     List.iter (fun output -> try Unix.unlink output with _ -> ()) outputs;
     raise e
   );
+  progress ~flush:true (Lib.sp "%s(done)" (to_name c));
   ListLabels.iter outputs ~f:(fun output ->
     run [| "yypkg"; "--upgrade"; "--install-new"; output |] ()
   )
@@ -62,7 +65,7 @@ let build_one_package ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
 let build_one_devshell ~env ~p =
   run_build_shell ~devshell:true ~run:(run ~env) ~p
 
-let build_one ~get ~env ~builder ~log ~p:((c, r) as p) =
+let build_one ~progress ~get ~env ~builder ~log ~p:((c, r) as p) =
   if r.sources <> [] then
   (
     ListLabels.iter r.sources ~f:(function
@@ -78,14 +81,13 @@ let build_one ~get ~env ~builder ~log ~p:((c, r) as p) =
     else (
       let outputs = List.map ((^/) builder.yyoutput) r.outputs in
       if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
-        progress "[%s] %s is already up-to-date.\n%!" builder.prefix.nickname (to_name c);
+        progress ~flush:false (Lib.sp "%s(up-to-date)" (to_name c));
         false
       )
       else (
-        progress "[%s] Building %s\n%!" builder.prefix.nickname (to_name c);
         ignore (Unix.lseek log 0 Unix.SEEK_SET);
         Unix.ftruncate log 0;
-        build_one_package ~get ~builder ~outputs ~env ~p ~log;
+        build_one_package ~progress ~get ~builder ~outputs ~env ~p ~log;
         true
       )
     )

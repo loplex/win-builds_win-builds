@@ -200,6 +200,7 @@ end
 module Builder = struct
   type t = {
     name : string;
+    shortname : string;
     prefix : Prefix.t;
     path : Env.t;
     pkg_config_path : Env.t;

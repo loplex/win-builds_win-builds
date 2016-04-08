@@ -61,6 +61,7 @@ let rec use ?(toplevel = false) ?(extras = []) file =
 ;;
 
 use ~toplevel:true "build/lib.ml";;
+use ~toplevel:true "build/statusline.ml";;
 use ~toplevel:true "build/config.ml";;
 use ~toplevel:true "build/sources.ml";;
 use ~toplevel:true "build/worker.ml";;

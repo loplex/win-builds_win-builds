@@ -7,7 +7,8 @@ let log ~builder ~p:((c, r) as p) =
   let path = builder.logs ^/ (to_name c) in
   path, Unix.openfile path [ Unix.O_RDWR; Unix.O_CREAT; ] 0o644
 
-let build ~get ~failer builder =
+let build ~get ~failer ~progress builder =
+  let progress ~flush s = Statusline.write ~flush progress s in
   let did_something = ref false in
   (if builder.packages <> [] then (
     (* progress "[%s] Checking %s\n%!"
@@ -22,7 +23,7 @@ let build ~get ~failer builder =
           let log_path, log_fd = log ~p ~builder in
           try
             did_something :=
-              (Worker.build_one ~get ~builder ~env ~p ~log:log_fd) || !did_something;
+              (Worker.build_one ~progress ~get ~builder ~env ~p ~log:log_fd) || !did_something;
             if !failer then
               Lib.log Lib.cri
                 "[%s] Aborting because another thread failed.\n%!"
@@ -50,10 +51,11 @@ let build ~get ~failer builder =
     aux builder.packages
   ));
   if !did_something && not dryrun then (
-    progress "[%s] Setting up repository.\n%!" builder.prefix.nickname;
-    try
+    progress ~flush:false "repository setup";
+    (try
       run [| "yypkg"; "--repository"; "--generate"; builder.yyoutput |] ()
-    with _ -> Printf.eprintf "ERROR: Couldn't create repository!\n%!"
+    with _ -> Printf.eprintf "ERROR: Couldn't create repository!\n%!");
+    progress ~flush:true "done";
   )
 
 (* This is the only acceptable umask when building packets. Any other gives
@@ -71,7 +73,14 @@ let builders =
 let () =
   let build ~get builders =
     let failer = ref false in
-    let run_builder builder = Thread.create (build ~get ~failer) builder in
+    let run_builder builder =
+      let progress = Statusline.create builder.shortname in
+      Thread.create (fun builder ->
+        try build ~get ~failer ~progress builder; Statusline.release progress
+        with exn -> Statusline.release progress
+      ) builder
+    in
+    (* TODO: change parallellessness instead *)
     let enough_ram = Sys.command "awk -F' ' '/MemAvailable/ { if ($2 > (2*1024*1024)) { exit 0 } else { exit 1 } }' /proc/meminfo" in
     (if enough_ram = 0 then
       List.iter Thread.join (List.map run_builder builders)
@@ -85,5 +94,9 @@ let () =
   let builders = List.map (List.map (fun b ->
     { b with packages = List.filter (fun p -> (c_of p).to_build) b.packages }))
   builders in
-  let get = Sources.get (List.flatten builders) in
+  let get =
+    let progress = Statusline.create "SRC" in
+    let packages = List.(flatten (map (fun b -> b.packages) (flatten builders))) in
+    Sources.get ~progress packages
+  in
   List.iter (build ~get) builders

@@ -12,6 +12,7 @@ module Native_toolchain = struct
     let open Builder in
     {
       name;
+      shortname = "NAT";
       prefix; logs; yyoutput;
       path = Env.Prepend [ prefix.yyprefix ^/ "bin" ];
       pkg_config_path = Env.Prepend [ prefix.libdir ^/ "pkgconfig" ];
@@ -31,7 +32,7 @@ module Native_toolchain = struct
 end
 
 module Cross_toolchain = struct
-  let make ~name ~target =
+  let make ~name ~shortname ~target =
     let open Config in
     let prefix = Prefix.t ~name ~build:Arch.build ~host:Arch.build ~target in
     let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
@@ -42,6 +43,7 @@ module Cross_toolchain = struct
     let native_prefix = Native_toolchain.builder.prefix in
     {
       name;
+      shortname;
       prefix; logs; yyoutput;
       path = Env.Prepend [
         prefix.yyprefix ^/ "bin";
@@ -70,13 +72,15 @@ module Cross_toolchain = struct
     }
 
   let builder_32 =
-      make ~name:"cross_toolchain_32" ~target:Config.Arch.windows_32
+      make ~name:"cross_toolchain_32" ~shortname:"X32"
+      ~target:Config.Arch.windows_32
   let builder_64 =
-      make ~name:"cross_toolchain_64" ~target:Config.Arch.windows_64
+      make ~name:"cross_toolchain_64" ~shortname:"X64"
+      ~target:Config.Arch.windows_64
 end
 
 module Windows = struct
-  let make ~cross ~name ~host =
+  let make ~cross ~name ~shortname ~host =
     let open Config in
     let prefix = Prefix.t ~name ~build:Arch.build ~host ~target:host in
     let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
@@ -88,6 +92,7 @@ module Windows = struct
     let native_prefix = Native_toolchain.builder.prefix in
     {
       name;
+      shortname;
       prefix; logs; yyoutput;
       path = Env.Prepend [
         cross.prefix.yyprefix ^/ "bin";
@@ -114,12 +119,15 @@ module Windows = struct
   (* builder_ministat needs to come before builder_32 because one will shadow
    * the other's ${yyprefix_target} and we don't want it the other way round. *)
   let builder_ministat =
-    make ~name:"windows_ministat" ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
+    make ~name:"windows_ministat" ~shortname:"Wmu"
+    ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
 
   let builder_32 = 
-    make ~name:"windows_32" ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
+    make ~name:"windows_32" ~shortname:"W32"
+     ~host:Config.Arch.windows_32 ~cross:Cross_toolchain.builder_32
 
   let builder_64 =
-    make ~name:"windows_64" ~host:Config.Arch.windows_64 ~cross:Cross_toolchain.builder_64
+    make ~name:"windows_64" ~shortname:"W64"
+     ~host:Config.Arch.windows_64 ~cross:Cross_toolchain.builder_64
 
 end

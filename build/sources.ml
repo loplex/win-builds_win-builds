@@ -130,9 +130,10 @@ module Git = struct
 end
 
 module Tarball = struct
-  let get (file, sha1) =
+  let get ~progress (file, sha1) =
     let download ~file =
-      run [| "curl"; "-o"; file; (Sys.getenv "MIRROR") ^/ file |] ()
+      progress ();
+      run [| "curl"; "--silent"; "-o"; file; (Sys.getenv "MIRROR") ^/ file |] ()
     in
     let file_matches_sha1 ~sha1 ~file =
       if sha1 = "" then (
@@ -193,31 +194,50 @@ module Tarball = struct
     get (file, sha1)
 end
 
-let get l =
-  let obtained_sources = ref [] in
-  let obtain p = List.assoc p !obtained_sources in
+let get ~progress l =
+  let progress ~flush s = Statusline.write ~flush progress s in
+  progress ~flush:false "idle";
+  let obtained = ref [] in
+  let l = List.fold_right (fun p accu -> match p with Real p -> p :: accu | _ -> accu) l [] in
   let m = Mutex.create () in
   let cond = Condition.create () in
-  ignore (Thread.create (
+  ignore (Thread.create (fun l ->
     List.iter (fun ((c, r) as p) ->
-      Mutex.lock m;
-      (try
-        if not (try ignore (obtain p); true with Not_found -> false) then (
+      if not (List.mem_assoc p !obtained) then (
+        let res = (try
+          (* TODO: provide a progress percentage for downloads *)
           ListLabels.iter r.sources ~f:(function
-            | WB _ -> ()
-            | Tarball y -> Tarball.get ~package:c.package y
-            | Git.T y -> Git.get y
-            | Patch y -> Patch.get y
+            | WB _ ->
+                ()
+            | Tarball y ->
+                let progress () = progress ~flush:false (to_name c) in
+                Tarball.get ~progress ~package:c.package y
+            | Git.T y ->
+                Git.get y
+            | Patch y ->
+                Patch.get y
             | _ -> assert false
           );
-          obtained_sources := (p, None) :: !obtained_sources;
-        );
-      with exn ->
-        obtained_sources := (p, Some exn) :: !obtained_sources;
+          None
+        with exn ->
+          Some exn
+        )
+        in
+        Mutex.lock m;
+        obtained := (p, res) :: !obtained;
+        Mutex.unlock m;
+        Condition.broadcast cond
       );
-      Condition.broadcast cond
-  )));
-  (fun p -> while (try obtain p; false with Not_found -> true) do Condition.wait cond m done; obtain p)
+    ) l;
+    progress ~flush:false "done";
+  ) l);
+  (fun p ->
+    Mutex.lock m;
+    while not (List.mem_assoc p !obtained) do
+      Condition.wait cond m
+    done;
+    Mutex.unlock m;
+    List.assoc p !obtained)
 
 let version_of_package package =
   let o = run_and_read [|
