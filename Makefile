@@ -4,7 +4,7 @@ default: build
 
 build_real:
 	ocaml str.cma build/amalgation.ml > build/amalgated.ml \
-	&& LANG="C" NUMJOBS="$(NUMJOBS)" MAKEFLAGS="$(SUB_MAKEFLAGS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
+	&& LANG="C" NUMJOBS="$(NUMJOBS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
 	  ocaml unix.cma str.cma -I +threads threads.cma \
 		build/amalgated.ml $(VERSION)
 

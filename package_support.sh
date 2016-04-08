@@ -104,6 +104,8 @@ export CONFIG_SHELL="$(which bash)"
 
 if ! chown root:root / 2>/dev/null; then chown() { : ; }; export -f chown; fi
 
+export MAKEFLAGS="${NUMJOBS}"
+
 cd "${SRCDIR}"
 
 CONFIG="config${VARIANT:+-"${VARIANT}"}"
