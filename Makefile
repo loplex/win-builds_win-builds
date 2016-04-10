@@ -46,7 +46,7 @@ endif
 		PREFIX="$(PREFIX)"
 
 deps:
-	$(MAKE) -C deps PREFIX="$(PREFIX)" PATH="$(PATH)" LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)"
+	$(MAKE) -C deps
 
 tarballs-upload:
 	set -o pipefail; \
