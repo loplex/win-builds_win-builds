@@ -3,10 +3,12 @@ include Makefile.data
 default: build
 
 build_real:
-	ocaml str.cma build/amalgation.ml > build/amalgated.ml \
-	&& LANG="C" NUMJOBS="$(NUMJOBS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" \
-	  ocaml unix.cma str.cma -I +threads threads.cma \
-		build/amalgated.ml $(VERSION)
+	@ocaml str.cma build/amalgation.ml > build/amalgated.ml
+	@echo "BUILD LOCATION   =   \"$(YYBASEPATH)\""
+	@echo "NUMJOBS          =   \"$(NUMJOBS)\""
+	@echo "TAR_VERBOSE      =   \"$(TAR_VERBOSE)\""
+	@echo "BUILD_TRIPLET    =   \"$(BUILD_TRIPLET)\""
+	@LANG="C" NUMJOBS="$(NUMJOBS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" ocaml unix.cma str.cma -I +threads threads.cma build/amalgated.ml $(VERSION)
 
 ifneq ($(WITH_LXC),)
 
@@ -29,7 +31,7 @@ LXC_EXECUTE =
 build:
 
 endif
-	$(LXC_EXECUTE) $$(which $$(basename $$(echo "$(MAKE)" | cut -f1 -d' '))) \
+	@$(LXC_EXECUTE) $$(which $$(basename $$(echo "$(MAKE)" | cut -f1 -d' '))) \
 		build_real \
 		NATIVE_TOOLCHAIN="$(NATIVE_TOOLCHAIN)" \
 		CROSS_TOOLCHAIN_32="$(CROSS_TOOLCHAIN),$(CROSS_TOOLCHAIN_32)" \
