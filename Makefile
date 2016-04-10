@@ -46,6 +46,16 @@ endif
 		PREFIX="$(PREFIX)"
 
 deps:
+	@BRANCH_L="$$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"; \
+	BRANCH_R="$$(git rev-parse --symbolic-full-name --abbrev-ref HEAD@{u})"; \
+	REMOTE="$${BRANCH_R%%/*}"; \
+	REMOTE_URL="$$(git config "remote.$${REMOTE}.url")"; \
+	for repo in slackware slackbuilds.org; do \
+	  if ! [ -d "$${repo}" ] && ! [ -L "$${repo}" ]; then \
+	    git clone --no-checkout "$${REMOTE_URL%/win-builds.git}/$${repo}.git"; \
+	    git --git-dir="$${repo}/.git" --work-tree="$${repo}" checkout -b "$${BRANCH_L}" "$${BRANCH_R}"; \
+	  fi; \
+	done
 	$(MAKE) -C deps
 
 tarballs-upload:
