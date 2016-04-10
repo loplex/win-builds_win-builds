@@ -7,18 +7,18 @@ cflags() {
   local hardening
   local optimization
 
-  case "${YYOPTIMIZATION}" in
+  case "${YYOPTIMIZATION:-""}" in
     *) optimization='-O2' ;;
   esac
 
-  case "${YYDEBUG}" in
+  case "${YYDEBUG:-""}" in
     3) dbg='-ggdb3' ;;
     2) dbg='-ggdb2' ;;
     1 | *) dbg='-ggdb' ;;
     0) dbg='-ggdb0' ;;
   esac
 
-  case "${YYHARDENING}" in
+  case "${YYHARDENING:-""}" in
     *) hardening='' ;;
   esac
 
@@ -32,7 +32,7 @@ cxxflags() {
 asflags() {
   local dbg
 
-  case "${YYDEBUG}" in
+  case "${YYDEBUG:-""}" in
     0) dbg='' ;;
     *) dbg='-g' ;;
   esac
@@ -47,11 +47,11 @@ ldflags() {
   local hardening=''
   local high_entropy_va=''
 
-  case "${YYDEFAULTLIBRARYPATH}" in
+  case "${YYDEFAULTLIBRARYPATH:-""}" in
     no) library_path='' ;;
     *)
-      case "${HOST_PREFIX}" in
-        "${TARGET_PREFIX}") library_path="-L/${PREFIX}/lib${LIBDIRSUFFIX}" ;;
+      case "${HOST_PREFIX:-""}" in
+        "${TARGET_PREFIX:-""}") library_path="-L/${PREFIX}/lib${LIBDIRSUFFIX}" ;;
         *) library_path='' ;;
       esac
   esac
@@ -73,7 +73,7 @@ ldflags() {
       high_entropy_va=''
       ;;
   esac
-  case "${YYHARDENING}" in
+  case "${YYHARDENING:-""}" in
     no) hardening='' ;;
     *) hardening="${dynamicbase}${nxcompat}${high_entropy_va}" ;;
   esac
