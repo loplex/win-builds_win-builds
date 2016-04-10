@@ -39,29 +39,18 @@ module Env = struct
 end
 
 module Arch = struct
-  type t = {
-    triplet : string;
-    bits : int;
-  }
+  type t = string
 
-  let t triplet =
-    let bits =
-      match List.hd (Str.split (Str.regexp "-") triplet) with
-      | "x86_64" -> 64
-      | "i686" | "i586" | "i486" | "i386" -> 32
-      | _ -> assert false
-    in
-    { triplet; bits }
-
-  let build = t (Sys.getenv "BUILD_TRIPLET")
-  let windows_32 = t "i686-w64-mingw32"
-  let windows_64 = t "x86_64-w64-mingw32"
+  let build = Sys.getenv "BUILD_TRIPLET"
+  let windows_32 = "i686-w64-mingw32"
+  let windows_64 = "x86_64-w64-mingw32"
 end
 
 module Prefix = struct
   type t = {
     yyprefix : string;
     libdir : string;
+    libdirsuffix : string;
     name : string;
     build : Arch.t;
     host : Arch.t;
@@ -74,10 +63,14 @@ module Prefix = struct
       | Not_found -> (Sys.getcwd ()) ^/ "opt"
     in
     let path = basepath ^/ name in
-    let libdir =
-      path ^/ (if target.Arch.bits = 32 then "lib" else "lib64")
+    let libdirsuffix =
+      match List.hd (Str.split (Str.regexp "-") target) with
+      | "x86_64" -> "64"
+      | "i686" | "i586" | "i486" | "i386" -> "32"
+      | _ -> assert false
     in
-    { build; host; target; name; yyprefix = path; libdir }
+    let libdir = path ^/ ("lib" ^ libdirsuffix) in
+    { build; host; target; name; yyprefix = path; libdir; libdirsuffix }
 end
 
 module Package = struct
@@ -165,17 +158,13 @@ module Builder = struct
   let env t =
     let module P = Prefix in
     let module A = Arch in
-    let build = t.prefix.P.build in
-    let host = t.prefix.P.host in
-    let target = t.prefix.P.target in
-    let libdirsuffix = if host.A.bits = 64 then "64" else "" in
     Env.to_array (Env.process (Env.get ()) [
       "PATH", t.path;
       "LD_LIBRARY_PATH", t.ld_library_path;
       "C_PATH", t.c_path;
       "LIBRARY_PATH", t.library_path;
-      "PKG_CONFIG_PATH", t.pkg_config_path; (* FIXME: base on libdir *)
-      "PKG_CONFIG_LIBDIR", t.pkg_config_libdir; (* FIXME: base on libdir *)
+      "PKG_CONFIG_PATH", t.pkg_config_path;
+      "PKG_CONFIG_LIBDIR", t.pkg_config_libdir;
       "OCAMLFIND_CONF", Env.Set [ t.prefix.P.yyprefix ^ "/etc/findlib.conf" ];
       "ACLOCAL_PATH", Env.Set [ t.prefix.P.yyprefix ^ "/share/aclocal" ];
       "YYPREFIX", Env.Set [ t.prefix.P.yyprefix ];
@@ -185,10 +174,10 @@ module Builder = struct
        *)
       "YYOUTPUT", Env.Set [ t.yyoutput ];
       "TMP", t.tmp;
-      "LIBDIRSUFFIX", Env.Set [ libdirsuffix ];
-      "HOST_TRIPLET", Env.Set [ host.A.triplet ]; (* TODO: unused, rm *)
-      "TARGET_TRIPLET", Env.Set [ target.A.triplet ];
-      "BUILD_TRIPLET", Env.Set [ build.A.triplet ];
+      "LIBDIRSUFFIX", Env.Set [ t.prefix.P.libdirsuffix ];
+      "HOST_TRIPLET", Env.Set [ t.prefix.P.host ];
+      "TARGET_TRIPLET", Env.Set [ t.prefix.P.target ];
+      "BUILD_TRIPLET", Env.Set [ t.prefix.P.build ];
       "YYPREFIX_CROSS",
         (match t.cross_prefix with Some p -> Env.Set [ p ] | None -> Env.Keep);
       "YYPREFIX_NATIVE",

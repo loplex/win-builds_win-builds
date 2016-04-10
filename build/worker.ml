@@ -21,9 +21,9 @@ let dict0 ~builder ~p:(c, (r : Config.Package.real)) =
     "PACKAGE", c.package;
     "VARIANT", s_of_variant c.variant;
     "BUILD", string_of_int r.build;
-    "TARGET_TRIPLET", r.prefix.target.triplet;
-    "HOST_TRIPLET", r.prefix.host.triplet;
-    "BUILD_TRIPLET", r.prefix.build.triplet;
+    "TARGET_TRIPLET", r.prefix.target;
+    "HOST_TRIPLET", r.prefix.host;
+    "BUILD_TRIPLET", r.prefix.build;
   ]
 
 let needs_rebuild ~version ~sources ~outputs =
@@ -103,9 +103,9 @@ let build_env builder =
   (
     run ~env [| "yypkg"; "--init" |] ();
     run ~env [| "yypkg"; "--config"; "--predicates"; "--set";
-      Lib.sp "host=%s" builder.prefix.host.triplet |] ();
+      Lib.sp "host=%s" builder.prefix.host |] ();
     run ~env [| "yypkg"; "--config"; "--predicates"; "--set";
-      Lib.sp "target=%s" builder.prefix.target.triplet |] ();
+      Lib.sp "target=%s" builder.prefix.target |] ();
     run ~env [| "yypkg"; "--config"; "--predicates"; "--set"; "dbg=yes" |] ();
     run ~env [| "yypkg"; "--config"; "--set-mirror";
       Lib.sp "http://win-builds.org/%s/packages/%s"
