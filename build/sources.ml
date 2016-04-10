@@ -130,9 +130,8 @@ module Git = struct
 end
 
 module Tarball = struct
-  let get ~progress (file, sha1) =
+  let get (file, sha1) =
     let download ~file =
-      progress ();
       run [| "curl"; "--silent"; "-o"; file; (Sys.getenv "MIRROR") ^/ file |] ()
     in
     let file_matches_sha1 ~sha1 ~file =
@@ -194,9 +193,7 @@ module Tarball = struct
     get (file, sha1)
 end
 
-let get ~progress l =
-  let progress ~flush s = Statusline.write ~flush progress s in
-  progress ~flush:false "idle";
+let get l =
   let obtained = ref [] in
   let l = List.fold_right (fun p accu -> match p with Real p -> p :: accu | _ -> accu) l [] in
   let m = Mutex.create () in
@@ -205,17 +202,11 @@ let get ~progress l =
     List.iter (fun ((c, r) as p) ->
       if not (List.mem_assoc p !obtained) then (
         let res = (try
-          (* TODO: provide a progress percentage for downloads *)
           ListLabels.iter r.sources ~f:(function
-            | WB _ ->
-                ()
-            | Tarball y ->
-                let progress () = progress ~flush:false (to_name c) in
-                Tarball.get ~progress ~package:c.package y
-            | Git.T y ->
-                Git.get y
-            | Patch y ->
-                Patch.get y
+            | WB _ -> ()
+            | Tarball y -> Tarball.get ~package:c.package y
+            | Git.T y -> Git.get y
+            | Patch y -> Patch.get y
             | _ -> assert false
           );
           None
@@ -229,7 +220,6 @@ let get ~progress l =
         Condition.broadcast cond
       );
     ) l;
-    progress ~flush:false "done";
   ) l);
   (fun p ->
     Mutex.lock m;

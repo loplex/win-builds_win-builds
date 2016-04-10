@@ -87,8 +87,6 @@ let () =
     { b with packages = List.filter (fun p -> (c_of p).to_build) b.packages }))
   builders in
   let get =
-    let progress = Statusline.create "SRC" in
-    let packages = List.(flatten (map (fun b -> b.packages) (flatten builders))) in
-    Sources.get ~progress packages
+    Sources.get (List.(flatten (map (fun b -> b.packages) (flatten builders))))
   in
   List.iter (build ~get) builders
