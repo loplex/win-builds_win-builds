@@ -6,6 +6,7 @@ let do_adds builder =
 #use "slackware/d/libtool/wb.ml"
 #use "slackware/d/automake/wb.ml"
 #use "slackware/l/gmp/wb.ml"
+ignore gmp; (* only used indirectly through ~native_deps *)
 #use "slackware/l/mpfr/wb.ml"
 #use "slackware/l/libmpc/wb.ml"
 #use "slackbuilds.org/development/lua/wb.ml"
@@ -18,6 +19,7 @@ let do_adds builder =
 #use "slackbuilds.org/libraries/efl/wb-for-your-tools-only.ml"
 #use "slackbuilds.org/libraries/elementary/wb-for-your-tools-only.ml"
 #use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
+  let _ = mingw_w64_add in (* wb-common.ml is only used for its helper for mingw-w64 libs and tools *)
 #use "slackbuilds.org/win-builds/gendef/wb.ml"
 #use "slackbuilds.org/win-builds/genidl/wb.ml"
 #use "slackbuilds.org/win-builds/genpeimg/wb.ml"
@@ -28,6 +30,7 @@ let do_adds builder =
 let ocaml = ocaml_add ~dependencies:[ musl_private ] ~native_deps:[] in
 #use "slackware/a/file/wb.ml"
   let file = file_add ~dependencies:[] in
+ignore file; (* only used indirectly through ~native_deps for file's cross *)
 
 #extras
 

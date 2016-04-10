@@ -7,12 +7,9 @@ let do_adds builder =
 #use "slackware/d/autoconf/wb.ml"
 #use "slackware/d/libtool/wb.ml"
 #use "slackware/d/automake/wb.ml"
+  let mingw_w64_deps = [] in
 #use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
-#use "slackbuilds.org/win-builds/mingw-w64/wb-headers.ml"
-  let mingw_w64_full = mingw_w64_add ("mingw-w64", Some "full")
-    ~build:2
-    ~dependencies:[]
-  in
+#use "slackbuilds.org/win-builds/mingw-w64/wb-full.ml"
 #use "slackbuilds.org/win-builds/gendef/wb.ml"
 #use "slackbuilds.org/win-builds/genidl/wb.ml"
 #use "slackbuilds.org/win-builds/genpeimg/wb.ml"
@@ -21,6 +18,7 @@ let do_adds builder =
 #use "slackbuilds.org/win-builds/widl/wb.ml"
 #use "slackbuilds.org/win-builds/win-iconv/wb.ml"
 #use "slackbuilds.org/win-builds/musl-private/wb.ml"
+ignore musl_private; (* file was only included to get musl's version *)
 #use "slackbuilds.org/win-builds/tre/wb.ml"
 #use "slackware/a/gettext/wb.ml"
     let gettext = add (gettext_name, gettext_variant)
@@ -32,7 +30,7 @@ let do_adds builder =
     in
 
 #use "slackware/a/xz/wb-common.ml"
-    let xz = xz_add ~name:"xz" ~variant:"regular" ~dependencies:[ gettext ] in
+    let xz = xz_add ~variant:"regular" ~dependencies:[ gettext ] in
 
 #use "slackware/l/zlib/wb-regular.ml"
 #use "slackware/l/libjpeg-turbo/wb.ml"
@@ -110,7 +108,8 @@ let do_adds builder =
     let gcc_core_dependencies = [] in
     let gcc_native_dependencies = [] in
 #use "slackware/d/gcc/wb-core.ml"
-    let gcc_full_dependencies = [ mpfr; gmp; libmpc ] in
+ignore gcc_core; (* wb-core.ml is only used to get the version *)
+    let gcc_full_dependencies = [ mpfr; gmp; libmpc; mingw_w64_full ] in
 #use "slackware/d/gcc/wb-full.ml"
 
 #use "slackbuilds.org/multimedia/x264/wb.ml"
@@ -456,15 +455,15 @@ let do_adds_ministat () =
       ~sha1:"79a164edaa5421e987883a87a4643a86cac8c971"
   in
 
-#use "slackbuilds.org/win-builds/mingw-w64/wb-common.ml"
 #use "slackbuilds.org/win-builds/musl-private/wb.ml"
+ignore musl_private; (* file was only included to get musl's version *)
 #use "slackbuilds.org/win-builds/tre/wb.ml"
 #use "slackware/l/expat/wb-regular.ml"
 #use "slackware/a/dbus/wb-common.ml"
   let dbus = dbus_add ~variant:"yypkg" ~dependencies:[ expat ] in
 
 #use "slackware/a/xz/wb-common.ml"
-  let xz = xz_add ~name:"xz" ~variant:"yypkg" ~dependencies:[] in
+  let xz = xz_add ~variant:"yypkg" ~dependencies:[] in
 
 #use "slackware/l/libarchive/wb-common.ml"
   let libarchive = libarchive_add ~variant:"yypkg" ~dependencies:[ xz ] in
@@ -472,9 +471,6 @@ let do_adds_ministat () =
 #use "slackware/l/zlib/wb-regular.ml"
 #use "slackware/l/libpng/wb.ml"
 #use "slackware/l/freetype/wb.ml"
-#use "slackware/l/gmp/wb.ml"
-#use "slackware/n/nettle/wb.ml"
-#use "slackware/l/libtasn1/wb.ml"
 #use "slackware/n/ca-certificates/wb.ml"
 #use "slackbuilds.org/win-builds/win-iconv/wb.ml"
 #use "slackware/n/curl/wb-yypkg.ml"
