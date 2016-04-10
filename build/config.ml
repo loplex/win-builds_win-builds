@@ -66,7 +66,7 @@ module Prefix = struct
     let libdirsuffix =
       match List.hd (Str.split (Str.regexp "-") target) with
       | "x86_64" -> "64"
-      | "i686" | "i586" | "i486" | "i386" -> "32"
+      | "i686" | "i586" | "i486" | "i386" -> ""
       | _ -> assert false
     in
     let libdir = path ^/ ("lib" ^ libdirsuffix) in
