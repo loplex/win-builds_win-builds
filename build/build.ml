@@ -80,15 +80,7 @@ let () =
         with exn -> Statusline.release progress
       ) builder
     in
-    (* TODO: change parallellessness instead *)
-    let enough_ram = Sys.command "awk -F' ' '/MemAvailable/ { if ($2 > (2*1024*1024)) { exit 0 } else { exit 1 } }' /proc/meminfo" in
-    (if enough_ram = 0 then
-      List.iter Thread.join (List.map run_builder builders)
-    else (
-      Printf.eprintf "Detected less than 2GB of free RAM; building sequentially.\n%!";
-      List.iter (fun builder -> Thread.join (run_builder builder)) builders;
-    )
-    );
+    List.iter Thread.join (List.map run_builder builders);
     (if !failer then failwith "Build failed.")
   in
   let builders = List.map (List.map (fun b ->
