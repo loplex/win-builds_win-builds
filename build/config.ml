@@ -44,8 +44,7 @@ module Arch = struct
     bits : int;
   }
 
-  let build =
-    let triplet = Sys.getenv "BUILD_TRIPLET" in
+  let t triplet =
     let bits =
       match List.hd (Str.split (Str.regexp "-") triplet) with
       | "x86_64" -> 64
@@ -54,15 +53,9 @@ module Arch = struct
     in
     { triplet; bits }
 
-  let windows_32 = {
-    triplet = "i686-w64-mingw32";
-    bits = 32;
-  }
-
-  let windows_64 = {
-    triplet = "x86_64-w64-mingw32";
-    bits = 64;
-  }
+  let build = t (Sys.getenv "BUILD_TRIPLET")
+  let windows_32 = t "i686-w64-mingw32"
+  let windows_64 = t "x86_64-w64-mingw32"
 end
 
 module Prefix = struct
