@@ -108,8 +108,8 @@ let build_env builder =
       Lib.sp "target=%s" builder.prefix.target.triplet |] ();
     run ~env [| "yypkg"; "--config"; "--predicates"; "--set"; "dbg=yes" |] ();
     run ~env [| "yypkg"; "--config"; "--set-mirror";
-      Lib.sp "http://win-builds.org/%s/packages/windows_%d"
-        Lib.version builder.prefix.host.bits |] ();
+      Lib.sp "http://win-builds.org/%s/packages/%s"
+        Lib.version builder.prefix.name |] ();
   ));
   env
 
