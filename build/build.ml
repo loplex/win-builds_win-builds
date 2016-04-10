@@ -3,7 +3,7 @@ open Config.Package
 open Config.Builder
 open Lib
 
-let log ~builder ~p:((c, r) as p) =
+let log ~builder ~p:(c, r) =
   let path = builder.logs ^/ (to_name c) in
   path, Unix.openfile path [ Unix.O_RDWR; Unix.O_CREAT; ] 0o644
 
