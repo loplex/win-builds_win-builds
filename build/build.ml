@@ -27,15 +27,15 @@ let build ~get ~failer ~progress builder =
             if !failer then
               Lib.log Lib.cri
                 "[%s] Aborting because another thread failed.\n%!"
-                builder.prefix.nickname
+                builder.prefix.name
             else
               aux tl
           with _ -> (
             failer := true;
             Lib.(log cri
               "\n[%s] *** ERROR ***\n[%s] Build of %s failed; read and/or share the build log at:\n  %S\n\n%!"
-              builder.prefix.nickname
-              builder.prefix.nickname
+              builder.prefix.name
+              builder.prefix.name
               (to_name c)
               log_path
               )

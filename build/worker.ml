@@ -117,7 +117,7 @@ let register ~builder =
   let push p =
     builder.packages <- (builder.packages @ [ p ])
   in
-  let shall_build = shall_build builder.name in
+  let shall_build = shall_build builder.prefix.name in
   let add_cross_builder_deps ~builder_name l =
     let v = String.uppercase builder_name in
     let set = set_of_env v in

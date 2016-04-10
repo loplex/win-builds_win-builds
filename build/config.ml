@@ -69,8 +69,7 @@ module Prefix = struct
   type t = {
     yyprefix : string;
     libdir : string;
-    nickname : string;
-    kind : string;
+    name : string;
     build : Arch.t;
     host : Arch.t;
     target : Arch.t;
@@ -81,20 +80,11 @@ module Prefix = struct
       try Sys.getenv "YYBASEPATH" with
       | Not_found -> (Sys.getcwd ()) ^/ "opt"
     in
-    let kind = (* FIXME *)
-      if build = host then
-        if build = target then
-          "native_toolchain"
-        else
-          "cross_toolchain"
-      else
-        "windows"
-    in
     let path = basepath ^/ name in
     let libdir =
       path ^/ (if target.Arch.bits = 32 then "lib" else "lib64")
     in
-    { build; host; target; nickname = name; kind; yyprefix = path; libdir }
+    { build; host; target; name; yyprefix = path; libdir }
 end
 
 module Package = struct
@@ -156,7 +146,6 @@ end
 
 module Builder = struct
   type t = {
-    name : string;
     shortname : string;
     prefix : Prefix.t;
     path : Env.t;

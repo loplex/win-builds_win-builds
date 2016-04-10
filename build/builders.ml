@@ -5,13 +5,12 @@ module Native_toolchain = struct
     let open Config in
     let name = "native_toolchain" in
     let prefix = Arch.(Prefix.t ~name ~build ~host:build ~target:build) in
-    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
+    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.name in
     let open Arch in
     let open Prefix in
     let open Package in
     let open Builder in
     {
-      name;
       shortname = "NAT";
       prefix; logs; yyoutput;
       path = Env.Prepend [ prefix.yyprefix ^/ "bin" ];
@@ -35,14 +34,13 @@ module Cross_toolchain = struct
   let make ~name ~shortname ~target =
     let open Config in
     let prefix = Prefix.t ~name ~build:Arch.build ~host:Arch.build ~target in
-    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
+    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.name in
     let open Arch in
     let open Prefix in
     let open Package in
     let open Builder in
     let native_prefix = Native_toolchain.builder.prefix in
     {
-      name;
       shortname;
       prefix; logs; yyoutput;
       path = Env.Prepend [
@@ -83,7 +81,7 @@ module Windows = struct
   let make ~cross ~name ~shortname ~host =
     let open Config in
     let prefix = Prefix.t ~name ~build:Arch.build ~host ~target:host in
-    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.nickname in
+    let logs, yyoutput = Package.logs_yyoutput ~nickname:prefix.Prefix.name in
     cross.Config.Builder.target_prefix <- Some prefix.Prefix.yyprefix;
     let open Arch in
     let open Prefix in
@@ -91,7 +89,6 @@ module Windows = struct
     let open Builder in
     let native_prefix = Native_toolchain.builder.prefix in
     {
-      name;
       shortname;
       prefix; logs; yyoutput;
       path = Env.Prepend [
@@ -104,7 +101,7 @@ module Windows = struct
       target_prefix = None;
       cross_prefix  = Some cross.Config.Builder.prefix.Prefix.yyprefix;
       native_prefix = Some native_prefix.Prefix.yyprefix;
-      cross_name = Some cross.name;
+      cross_name = Some cross.prefix.name;
       packages = [];
       redistributed = false;
       default_cross_deps = [ "gcc:full" ];
