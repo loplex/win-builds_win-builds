@@ -36,4 +36,4 @@ LD_LIBRARY_PATH := $(PREFIX)/lib:$(LD_LIBRARY_PATH)
 
 BUILD_TRIPLET ?= $(shell ./config.guess)
 
-NUMJOBS ?= -j5
+NUMJOBS ?= -j2
