@@ -83,7 +83,7 @@ ldflags() {
 
 case "${1}" in
   "as") asflags ;;
-  "c") cxflags ;;
+  "c") cflags ;;
   "cxx") cxxflags ;;
   "ld") ldflags ;;
 esac
