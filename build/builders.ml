@@ -47,8 +47,10 @@ module Cross_toolchain = struct
         prefix.yyprefix ^/ "bin";
         native_prefix.yyprefix ^/ "bin"
       ];
-      (* FIXME: this should also include native_prefix *)
-      pkg_config_path = Env.Prepend [ prefix.libdir ^/ "pkgconfig" ];
+      pkg_config_path = Env.Prepend [
+        prefix.libdir ^/ "pkgconfig";
+        native_prefix.libdir ^/ "pkgconfig";
+      ];
       pkg_config_libdir = Env.Keep;
       tmp = Env.Set [ prefix.yyprefix ^/ "tmp" ];
       target_prefix = None; (* updated from the Windows module *)
