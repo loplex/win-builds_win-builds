@@ -214,6 +214,7 @@ ignore gcc_core; (* wb-core.ml is only used to get the version *)
         check; bison; python; boost; vlc; tre; (* adwaita_icon_theme; *)
         readline; ncurses; luajit;
         rufus; examine;
+        openssl; file;
       ]
       ~version:"0.0.0"
       ~build:1
