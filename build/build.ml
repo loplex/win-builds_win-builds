@@ -76,8 +76,8 @@ let () =
     let run_builder builder =
       let progress = Statusline.create builder.shortname in
       Thread.create (fun builder ->
-        try build ~get ~failer ~progress builder; Statusline.release progress
-        with exn -> Statusline.release progress
+        (try build ~get ~failer ~progress builder with _ -> ());
+        Statusline.release progress
       ) builder
     in
     List.iter Thread.join (List.map run_builder builders);
