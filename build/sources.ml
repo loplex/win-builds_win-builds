@@ -83,9 +83,7 @@ module Git = struct
   let get { tarball; dir; obj; uri; remote; prefix } =
     match obj with
     | None ->
-        if not (Sys.file_exists tarball) then (
-          tar ~tarball ~git ~dir ~prefix
-        )
+        tar ~tarball ~dir ~prefix
     | Some obj -> (
         may (fun uri -> remote_add ~uri ~dir ?remote ()) uri;
         fetch ~dir remote;
