@@ -9,5 +9,5 @@ BASE="${2:?"The archive's base name must be provided and not ''."}"
 
 find "${CWD}" -maxdepth 1 \
   -name "${BASE}.*" -a \
-  \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' \) \
-  -exec tar xf${TAR_VERBOSE} {} +
+  \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' -o -name '*.tar' \) \
+  -exec tar xf${TAR_VERBOSE} {} \;
