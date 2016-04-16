@@ -69,11 +69,13 @@ module Git = struct
       ]
     ) remote
 
+  let version_of_obj ~dir = function
+    | Some obj -> git_sha1 ~dir obj
+    | None -> "disk"
+
   let version ~r =
     match List.find_all (function T _ -> true | _ -> false) r.sources with
-    | [ T { dir; obj = Some obj } ] -> git_sha1 ~dir obj
-    (* TODO: isn't propagated to the replacement list *)
-    | [ T { dir; obj = None } ] -> "disk"
+    | [ T { dir; obj } ] -> version_of_obj ~dir obj
     (* Return the same version if no git sources have been found; this
      * makes it possible to not have to wonder whether there's at least one
      * git source or not *)
@@ -81,20 +83,20 @@ module Git = struct
     | _ -> assert false
 
   let get { tarball; dir; obj; uri; remote; prefix } =
-    match obj with
-    | None ->
-        tar ~tarball ~dir ~prefix
-    | Some obj -> (
-        may (fun uri -> remote_add ~uri ~dir ?remote ()) uri;
-        fetch ~dir remote;
-        let version = git_sha1 ~dir obj in
-        let subst = substitute_variables ~dict:[ "VERSION", version ] in
-        let tarball = subst tarball in
-        let dir = subst dir in
-        let prefix = subst prefix in
-        if not (Sys.file_exists tarball) then (
-          archive ~tarball ~obj ~prefix ~dir
-        )
+    may (fun _ ->
+      may (fun uri -> remote_add ~uri ~dir ?remote ()) uri;
+      fetch ~dir remote;
+    ) obj;
+    let version = version_of_obj ~dir obj in
+    let subst = substitute_variables ~dict:[ "VERSION", version ] in
+    let tarball = subst tarball in
+    let dir = subst dir in
+    let prefix = subst prefix in
+    (match obj with
+    | None -> tar ~tarball ~dir ~prefix
+    | Some obj when not (Sys.file_exists tarball) ->
+        archive ~obj ~tarball ~dir ~prefix
+    | Some obj -> ()
     )
 end
 
