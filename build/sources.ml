@@ -62,11 +62,11 @@ module Git = struct
     );
     may (fun remote ->
       log dbg "Ensuring remote %S to %S at %S.\n%!" remote uri dir;
-      system ~env:(git_dir dir) [|
+      system ~env:(git_dir dir) [
         "git"; "remote"; "-v"; "show";
         "|"; "grep"; "-q"; sp "'^%s[[:blank:]]%s[[:blank:]](fetch)$'" remote uri;
         "||"; "git"; "remote"; "add"; remote; uri
-      |] ()
+      ]
     ) remote
 
   let version ~r =
