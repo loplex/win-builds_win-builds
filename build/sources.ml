@@ -40,11 +40,9 @@ module Git = struct
 
   let archive ~obj ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
-    system ~env:(git_dir dir) [
-      "git"; "archive"; sp "--prefix=%s/" prefix; obj;
-      "|"; "gzip"; "-1";
-      ">"; tarball
-    ]
+    run ~env:(git_dir dir) [|
+      "git"; "archive"; sp "--prefix=%s/" prefix; "-o"; tarball; obj;
+    |] ()
 
   let fetch ~dir = function
     | Some remote -> run ~env:(git_dir dir) [| "git"; "fetch"; remote |] ()
