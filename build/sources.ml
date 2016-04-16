@@ -32,8 +32,8 @@ module Git = struct
     let env = Array.concat [ [| Lib.sp "GIT_DIR=%s/.git" dir |]; Unix.environment () ] in
     f ~env (Array.of_list args)
 
-  let git_dir_rev_parse ~dir args =
-    with_git_dir ~dir ["git"; "rev-parse"; "--verify"; "--short"; args ] run_and_read
+  let git_sha1 ~dir obj =
+    with_git_dir ~dir ["git"; "rev-parse"; "--verify"; "--short"; obj ] run_and_read
 
   let tar ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
@@ -52,11 +52,9 @@ module Git = struct
       ">"; tarball
     ] system
 
-  let fetch ~remote ~dir =
-    let f r = with_git_dir ~dir ("git" :: "fetch" :: r) run in
-    match remote with
-    | Some remote -> f [ remote ]
-    | None -> f []
+  let fetch ~dir = function
+    | Some remote -> with_git_dir ~dir [ "git"; "fetch"; remote ] run
+    | None -> with_git_dir ~dir [ "git"; "fetch" ] run
 
   let remote_add ~uri ~dir ?remote () =
     (if (not (Sys.file_exists dir)) || (not (Sys.is_directory dir)) then
@@ -79,18 +77,14 @@ module Git = struct
 
   let version ~r =
     match List.find_all (function T _ -> true | _ -> false) r.sources with
-    | [ T { dir; obj } ] -> (
-        match obj with
-        | Some obj -> git_dir_rev_parse ~dir obj
-        | None -> "disk" (* TODO: isn't propagated to the replacement list *)
-      )
-    | [] ->
-        (* return the same version if no git sources have been found; this
-         * makes it possible to not have to wonder whether there's at least one
-         * git source or not *)
-        r.version
-    | _ ->
-        assert false
+    | [ T { dir; obj = Some obj } ] -> git_sha1 ~dir obj
+    (* TODO: isn't propagated to the replacement list *)
+    | [ T { dir; obj = None } ] -> "disk"
+    (* Return the same version if no git sources have been found; this
+     * makes it possible to not have to wonder whether there's at least one
+     * git source or not *)
+    | [] -> r.version
+    | _ -> assert false
 
   let get { tarball; dir; obj; uri; remote; prefix } =
     match obj with
@@ -100,8 +94,8 @@ module Git = struct
         )
     | Some obj -> (
         may (fun uri -> remote_add ~uri ~dir ?remote ()) uri;
-        fetch ~remote ~dir;
-        let version = git_dir_rev_parse ~dir obj in
+        fetch ~dir remote;
+        let version = git_sha1 ~dir obj in
         let subst = substitute_variables ~dict:[ "VERSION", version ] in
         let tarball = subst tarball in
         let dir = subst dir in
