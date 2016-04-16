@@ -31,12 +31,13 @@ module Git = struct
 
   let tar ~tarball ~prefix ~dir =
     log wrn "Building tarball from git at %S.\n%!" tarball;
-    system ~env:(git_dir dir) [
-      "git"; "ls-files";
-      "|"; "tar"; "c"; "-C"; dir; "-T"; "-"; "--xform"; sp "'s;^;%s/;'" prefix;
-      "|"; "gzip"; "-1";
-      ">"; tarball
-    ]
+    run ~env:(git_dir dir) [|
+      "tar"; "cf"; tarball;
+      "--exclude-vcs"; "--exclude-vcs-ignores";
+      "-C"; dir;
+      ".";
+      "--transform"; sp "s;^\\.;%s;" prefix
+    |] ()
 
   let archive ~obj ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
