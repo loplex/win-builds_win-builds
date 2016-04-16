@@ -20,59 +20,53 @@ module Git = struct
   }
   type source += T of t
 
-  let system ?env a =
-    (* TODO: remove the String.escaped and the non-system variant *)
-    let cmd = String.concat " " (Array.to_list (Array.map String.escaped a)) in
-    run ?env [| Sys.getenv "SHELL"; "-c"; cmd |] ()
+  let system ?env l =
+    run ?env [| Sys.getenv "SHELL"; "-c"; String.concat " " l |] ()
 
-  let run ?env a =
-    run ?env a ()
-
-  let with_git_dir ~dir args (f : ?env:_ -> _ -> _) =
-    let env = Array.concat [ [| Lib.sp "GIT_DIR=%s/.git" dir |]; Unix.environment () ] in
-    f ~env (Array.of_list args)
+  let git_dir dir =
+    Array.concat [ [| sp "GIT_DIR=%s/.git" dir |]; Unix.environment () ]
 
   let git_sha1 ~dir obj =
-    with_git_dir ~dir ["git"; "rev-parse"; "--verify"; "--short"; obj ] run_and_read
+    run_and_read ~env:(git_dir dir) [| "git"; "rev-parse"; "--verify"; "--short"; obj |]
 
   let tar ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
-    with_git_dir ~dir [
+    system ~env:(git_dir dir) [
       "git"; "ls-files";
-      "|"; "tar"; "c"; "-C"; dir; "-T"; "-"; "--transform"; sp "s;^;%s/;" prefix;
+      "|"; "tar"; "c"; "-C"; dir; "-T"; "-"; "--xform"; sp "'s;^;%s/;'" prefix;
       "|"; "gzip"; "-1";
       ">"; tarball
-    ] system
+    ]
 
   let archive ~obj ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
-    with_git_dir ~dir [
+    system ~env:(git_dir dir) [
       "git"; "archive"; sp "--prefix=%s/" prefix; obj;
       "|"; "gzip"; "-1";
       ">"; tarball
-    ] system
+    ]
 
   let fetch ~dir = function
-    | Some remote -> with_git_dir ~dir [ "git"; "fetch"; remote ] run
-    | None -> with_git_dir ~dir [ "git"; "fetch" ] run
+    | Some remote -> run ~env:(git_dir dir) [| "git"; "fetch"; remote |] ()
+    | None -> run ~env:(git_dir dir) [| "git"; "fetch" |] ()
 
   let remote_add ~uri ~dir ?remote () =
     (if (not (Sys.file_exists dir)) || (not (Sys.is_directory dir)) then
       match remote with
       | None ->
           log dbg "Cloning %S at %S.\n%!" uri dir;
-          run [| "git"; "clone"; uri; dir |]
+          run [| "git"; "clone"; uri; dir |] ()
       | Some remote ->
           log dbg "Initializing a git repository at %S.\n%!" dir;
-          run [| "git"; "init"; dir |]
+          run [| "git"; "init"; dir |] ()
     );
     may (fun remote ->
       log dbg "Ensuring remote %S to %S at %S.\n%!" remote uri dir;
-      with_git_dir ~dir [
+      system ~env:(git_dir dir) [|
         "git"; "remote"; "-v"; "show";
-        "|"; "grep"; "-q"; Lib.sp "'^%s[[:blank:]]%s[[:blank:]](fetch)$'" remote uri;
+        "|"; "grep"; "-q"; sp "'^%s[[:blank:]]%s[[:blank:]](fetch)$'" remote uri;
         "||"; "git"; "remote"; "add"; remote; uri
-      ] system
+      |] ()
     ) remote
 
   let version ~r =
