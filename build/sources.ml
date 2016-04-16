@@ -250,17 +250,10 @@ let compare ~version ~sources ~output =
     | Patch patch -> compare_f (ts patch) ts_output
     | WB file -> compare_f (ts file) ts_output
     | Tarball (file, _) -> compare_f (ts file) ts_output
-    | Git.T { Git.obj = None } ->
-        1
+    | Git.T { Git.obj = None } -> 1
     | Git.T _ ->
-        if Sys.file_exists output then
-          try
-            abs (compare version (version_of_package output))
-          with
-            _ -> 1
-        else
-          1
-    | _ -> assert false
+        (try abs (compare version (version_of_package output)) with _ -> 1)
+    | _ -> assert false (* Needed because source is an extensible variant. *)
   in
   List.fold_left (fun accu s -> max accu (compare_one s)) (-1) sources
 
