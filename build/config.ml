@@ -113,6 +113,19 @@ module Package = struct
     | Real (c, _) -> c
     | Virtual c -> c
     | Provides (c, _) -> c
+
+  let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
+
+  let dict (c, r) =
+    [
+      "VERSION", r.version;
+      "PACKAGE", c.package;
+      "VARIANT", s_of_variant c.variant;
+      "BUILD", string_of_int r.build;
+      "TARGET_TRIPLET", r.prefix.Prefix.target;
+      "HOST_TRIPLET", r.prefix.Prefix.host;
+      "BUILD_TRIPLET", r.prefix.Prefix.build;
+    ]
 end
 
 module Builder = struct

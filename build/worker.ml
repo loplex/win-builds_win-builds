@@ -6,19 +6,6 @@ open Sources
 
 open Lib
 
-let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
-
-let dict0 ~builder ~p:(c, (r : Config.Package.real)) =
-  [
-    "VERSION", "${VERSION}";
-    "PACKAGE", c.package;
-    "VARIANT", s_of_variant c.variant;
-    "BUILD", string_of_int r.build;
-    "TARGET_TRIPLET", r.prefix.target;
-    "HOST_TRIPLET", r.prefix.host;
-    "BUILD_TRIPLET", r.prefix.build;
-  ]
-
 let needs_rebuild ~version ~sources ~outputs =
   List.exists (fun o -> Sources.compare ~version ~sources ~output:o > 0) outputs
 
@@ -132,13 +119,6 @@ let register ~builder =
     else
       "${PACKAGE}-${VERSION}-${BUILD}-${HOST_TRIPLET}.txz"
   in
-  let update_names ~p:((c, r) as p) =
-    let dict0 = dict0 ~builder ~p in
-    let dict =
-      if r.version <> "git" then ("VERSION", r.version) :: dict0 else dict0
-    in
-    p_update ~dict ~p
-  in
   fun
     ?(outputs = [ default_output ])
     ?(native_deps = [])
@@ -174,9 +154,9 @@ let register ~builder =
         let r = { dir; version; build; sources; outputs; prefix = builder.prefix } in
         (* Automatically inject a "devshell" package and don't return it since
          * it makes no sense to have other packages depend on it. *)
-        (* TODO: s/Real/Devshell ? *)
+        (* TODO: should we introduce a Devshell type? *)
         ignore (add_aux (Real (( { c with devshell = true } ), r)));
-        add_aux (Real (update_names ~p:(c, r)))
+        add_aux (Real (c, r))
     | true, None ->
         add_aux (Virtual c)
     | false, Some alternatives ->

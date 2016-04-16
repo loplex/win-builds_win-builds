@@ -163,11 +163,11 @@ module Tarball = struct
     get (file, sha1)
 end
 
-let p_update ~dict ~p:(c, r) =
-  let substitute_variables_sources source =
-    let sources_dir_ize s = (r.dir ^/ c.package) ^/ s in
-    let subst s = substitute_variables ~dict s in
-    match source with
+let sources_update ((c, r) as p) =
+  let dict = dict p in
+  let sources_dir_ize s = (r.dir ^/ c.package) ^/ s in
+  let subst s = substitute_variables ~dict s in
+  let subst_sources = function
     | WB file -> WB (sources_dir_ize (subst file))
     | Patch file -> Patch (sources_dir_ize (subst file))
     | Tarball (file, s) -> Tarball (sources_dir_ize (subst file), s)
@@ -179,11 +179,10 @@ let p_update ~dict ~p:(c, r) =
         })
     | x -> x
   in
-  c, {
-    r with
-    sources = List.map substitute_variables_sources r.sources;
-    outputs = List.map (substitute_variables ~dict) r.outputs;
-  }
+  ( c, { r with sources = List.map subst_sources r.sources } )
+
+let outputs_update ((c, r) as p) =
+  ( c, { r with outputs = List.map (substitute_variables ~dict:(dict p)) r.outputs } )
 
 let get l =
   let pred (c, _r) ((c', _r'), _res) =
@@ -196,6 +195,7 @@ let get l =
   ignore (Thread.create (fun l ->
     List.iter (fun ((c, r) as p) ->
       if not (List.exists (pred p) !obtained) then (
+        let (c, r) as p = sources_update p in
         let res = (try
           ListLabels.iter r.sources ~f:(function
             | WB _ -> ()
@@ -204,9 +204,7 @@ let get l =
             | Patch y -> Patch.get y
             | _ -> assert false
           );
-          let ((c, r) as p) = c, { r with version = Git.version ~r } in
-          let p = p_update ~dict:[ "VERSION", r.version ] ~p in
-          p, None
+          (outputs_update (c, { r with version = Git.version ~r })), None
         with exn ->
           p, Some exn
         )
