@@ -105,21 +105,6 @@ module Package = struct
     | Some variant -> String.concat ":" [ c.package; variant ]
     | None -> c.package
 
-  let substitute_variables ~dict s =
-    let f k =
-      try
-        Lib.log Lib.dbg "Associating %S in %S.\n%!" k s;
-        List.assoc k dict
-      with Not_found as exn ->
-        Lib.log Lib.cri "Couldn't resolve variable %S in %S.\n%!" k s;
-        raise exn
-    in
-    let b = Buffer.create (String.length s) in
-    Buffer.add_substitute b f s;
-    let s = Buffer.contents b in
-    Lib.log Lib.dbg "Result: %S.\n%!" s;
-    s
-
   let logs_yyoutput ~nickname =
     let rel_path l = List.fold_left (^/) Lib.work_dir l in
     (rel_path [ "logs"; nickname ]), (rel_path [ "packages"; nickname ])

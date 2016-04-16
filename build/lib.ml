@@ -56,10 +56,10 @@ let run ?(stdin=Unix.stdin) ?(stdout=Unix.stdout) ?(stderr=Unix.stderr) ?env a =
   (fun () -> waitpid dbg { pid = pid; cmd = cmd })
 
 (* XXX: only valid for short reads *)
-let run_and_read cmd =
+let run_and_read ?env cmd =
   let buf = Bytes.create 4096 in
   let pipe_read, pipe_write = Unix.pipe () in
-  let waiter = run ~stdout:pipe_write cmd in
+  let waiter = run ?env ~stdout:pipe_write cmd in
   Unix.close pipe_write;
   let l = Unix.read pipe_read buf 0 (Bytes.length buf) in
   Unix.close pipe_read;
@@ -92,3 +92,18 @@ let set_of_env n =
 
 let dryrun =
   not (try Sys.getenv "DRYRUN" = "0" with Not_found -> true)
+
+let substitute_variables ~dict s =
+  let f k =
+    try
+      log dbg "Associating %S in %S.\n%!" k s;
+      List.assoc k dict
+    with Not_found as exn ->
+      log cri "Couldn't resolve variable %S in %S.\n%!" k s;
+      raise exn
+  in
+  let b = Buffer.create (String.length s) in
+  Buffer.add_substitute b f s;
+  let s = Buffer.contents b in
+  log dbg "Result: %S.\n%!" s;
+  s

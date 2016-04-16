@@ -8,13 +8,6 @@ open Lib
 
 let s_of_variant ?(pref="") = function Some v -> pref ^ v | None -> ""
 
-let p_update ~dict ~p:(c, r) =
-  c, {
-    r with
-    sources = List.map (substitute_variables_sources ~dir:r.dir ~package:c.package ~dict) r.sources;
-    outputs = List.map (substitute_variables ~dict) r.outputs;
-  }
-
 let dict0 ~builder ~p:(c, (r : Config.Package.real)) =
   [
     "VERSION", "${VERSION}";
@@ -41,23 +34,12 @@ let run_build_shell ~devshell ~run ~p:(c, r) =
     string_of_bool devshell;
   |] ()
 
-let build_one_package ~progress ~get ~builder ~outputs ~env ~p:((c, r) as p) ~log =
-  progress ~flush:false (Lib.sp "%s(source)" (to_name c));
-  (match get p with None -> () | Some exn -> raise exn);
-  progress ~flush:false (Lib.sp "%s(build)" (to_name c));
-  let p =
-    if r.version = "git" then
-      let ((c, r) as p) = c, { r with version = Sources.Git.version ~r } in
-      p_update ~dict:[ "VERSION", r.version ] ~p
-    else
-      p
-  in
+let build_one_package ~outputs ~env ~p:((c, _) as p) ~log =
   let run command = run ~stdout:log ~stderr:log ~env command in
   (try run_build_shell ~devshell:false ~run ~p with e ->
     List.iter (fun output -> try Unix.unlink output with _ -> ()) outputs;
     raise e
   );
-  progress ~flush:true (Lib.sp "%s(done)" (to_name c));
   ListLabels.iter outputs ~f:(fun output ->
     run [| "yypkg"; "--upgrade"; "--install-new"; output |] ()
   )
@@ -79,15 +61,20 @@ let build_one ~progress ~get ~env ~builder ~log ~p:((c, r) as p) =
       false
     )
     else (
+      let name = to_name c in
+      progress ~flush:false (Lib.sp "%s(source)" name);
+      let (c, r) as p = match get p with p, None -> p | p, Some exn -> raise exn in
       let outputs = List.map ((^/) builder.yyoutput) r.outputs in
       if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
-        progress ~flush:false (Lib.sp "%s(up-to-date)" (to_name c));
+        progress ~flush:false (Lib.sp "%s(up-to-date)" name);
         false
       )
       else (
         ignore (Unix.lseek log 0 Unix.SEEK_SET);
         Unix.ftruncate log 0;
-        build_one_package ~progress ~get ~builder ~outputs ~env ~p ~log;
+        progress ~flush:false (Lib.sp "%s(build)" name);
+        build_one_package ~outputs ~env ~p ~log;
+        progress ~flush:true (Lib.sp "%s(done)" name);
         true
       )
     )
