@@ -30,7 +30,7 @@ module Git = struct
     run_and_read ~env:(git_dir dir) [| "git"; "rev-parse"; "--verify"; "--short"; obj |]
 
   let tar ~tarball ~prefix ~dir =
-    log wrn "Building archive from git at %S.\n%!" tarball;
+    log wrn "Building tarball from git at %S.\n%!" tarball;
     system ~env:(git_dir dir) [
       "git"; "ls-files";
       "|"; "tar"; "c"; "-C"; dir; "-T"; "-"; "--xform"; sp "'s;^;%s/;'" prefix;
