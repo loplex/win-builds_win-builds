@@ -187,13 +187,16 @@ let p_update ~dict ~p:(c, r) =
   }
 
 let get l =
+  let pred (c, _r) ((c', _r'), _res) =
+    (c'.package = c'.package) && (c.variant = c'.variant)
+  in
   let obtained = ref [] in
   let l = List.fold_right (fun p accu -> match p with Real p -> p :: accu | _ -> accu) l [] in
   let m = Mutex.create () in
   let cond = Condition.create () in
   ignore (Thread.create (fun l ->
     List.iter (fun ((c, r) as p) ->
-      if not (List.mem_assoc p !obtained) then (
+      if not (List.exists (pred p) !obtained) then (
         let res = (try
           ListLabels.iter r.sources ~f:(function
             | WB _ -> ()
@@ -216,16 +219,13 @@ let get l =
       );
     ) l;
   ) l);
-  (fun (c, r) ->
-    let pred ((c', _r'), _res) =
-      (c'.package = c'.package) && (c.variant = c'.variant)
-    in
+  (fun ((c, r) as p) ->
     Mutex.lock m;
-    while not (List.exists pred !obtained) do
+    while not (List.exists (pred p) !obtained) do
       Condition.wait cond m
     done;
     Mutex.unlock m;
-    List.find pred !obtained)
+    List.find (pred p) !obtained)
 
 let version_of_package package =
   let o = run_and_read [|
