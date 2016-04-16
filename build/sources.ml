@@ -216,7 +216,7 @@ let get l =
       );
     ) l;
   ) l);
-  (fun ((c, r) as p) ->
+  (fun (c, r) ->
     let pred ((c', _r'), _res) =
       (c'.package = c'.package) && (c.variant = c'.variant)
     in
