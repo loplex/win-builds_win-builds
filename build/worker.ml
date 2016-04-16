@@ -44,43 +44,32 @@ let build_one_package ~outputs ~env ~p:((c, _) as p) ~log =
     run [| "yypkg"; "--upgrade"; "--install-new"; output |] ()
   )
 
-let build_one_devshell ~env ~p =
+let devshell ~env ~p =
   run_build_shell ~devshell:true ~run:(run ~env) ~p
 
 let build_one ~progress ~get ~env ~builder ~log ~p:((c, r) as p) =
-  if r.sources <> [] then
-  (
-    ListLabels.iter r.sources ~f:(function
-      | Tarball (file, _) -> Lib.(log dbg " %s -> source=%s\n%!" c.package file)
-      | _ -> ()
-    )
+  let name = to_name c in
+  ListLabels.iter r.sources ~f:(function
+    | Tarball (file, _) -> Lib.(log dbg " %s -> source=%s\n%!" c.package file)
+    | _ -> ()
   );
-  if not dryrun then (
-    if c.devshell then (
-      build_one_devshell ~env ~p;
-      false
-    )
-    else (
-      let name = to_name c in
-      progress ~flush:false (Lib.sp "%s(source)" name);
-      let (c, r) as p = match get p with p, None -> p | p, Some exn -> raise exn in
-      let outputs = List.map ((^/) builder.yyoutput) r.outputs in
-      if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
-        progress ~flush:false (Lib.sp "%s(up-to-date)" name);
-        false
-      )
-      else (
-        ignore (Unix.lseek log 0 Unix.SEEK_SET);
-        Unix.ftruncate log 0;
-        progress ~flush:false (Lib.sp "%s(build)" name);
-        build_one_package ~outputs ~env ~p ~log;
-        progress ~flush:true (Lib.sp "%s(done)" name);
-        true
-      )
-    )
-  )
-  else
+  progress ~flush:false (Lib.sp "%s(source)" name);
+  let (c, r) as p = match get p with p, None -> p | p, Some exn -> raise exn in
+  let outputs = List.map ((^/) builder.yyoutput) r.outputs in
+  if not (needs_rebuild ~version:r.version ~sources:r.sources ~outputs) then (
+    progress ~flush:false (Lib.sp "%s(up-to-date)" name);
     false
+  )
+  else (
+    if not dryrun then (
+      ignore (Unix.lseek log 0 Unix.SEEK_SET);
+      Unix.ftruncate log 0;
+      progress ~flush:false (Lib.sp "%s(build)" name);
+      build_one_package ~outputs ~env ~p ~log;
+    );
+    progress ~flush:true (Lib.sp "%s(done)" name);
+    not dryrun
+  )
 
 let build_env builder =
   run ~env:[||] [| "mkdir"; "-p"; builder.yyoutput; builder.logs |] ();

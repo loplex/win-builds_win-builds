@@ -10,46 +10,38 @@ let log ~builder ~p:(c, r) =
 let build ~get ~failer ~progress builder =
   let progress ~flush s = Statusline.write ~flush progress s in
   let did_something = ref false in
-  (if builder.packages <> [] then (
-    (* progress "[%s] Checking %s\n%!"
-      builder.prefix.nickname
-      (String.concat ", " (List.map to_name builder.packages)); *)
-    let env = Worker.build_env builder in
-    let rec aux = function
-      | Virtual { package = "download" } :: tl ->
-          run ~env [| "yypkg"; "--web"; "--auto"; "yes" |] ();
-          aux tl
-      | Real ((c, _) as p) :: tl -> (
-          let log_path, log_fd = log ~p ~builder in
-          try
-            did_something :=
-              (Worker.build_one ~progress ~get ~builder ~env ~p ~log:log_fd) || !did_something;
-            if !failer then
-              Lib.log Lib.cri
-                "[%s] Aborting because another thread failed.\n%!"
-                builder.prefix.name
-            else
-              aux tl
-          with _ -> (
-            failer := true;
-            Lib.(log cri
-              "\n[%s] *** ERROR ***\n[%s] Build of %s failed; read and/or share the build log at:\n  %S\n\n%!"
-              builder.prefix.name
-              builder.prefix.name
-              (to_name c)
-              log_path
-              )
-          );
-          Unix.close log_fd
-        )
-      | Provides _ :: tl
-      | Virtual _ :: tl ->
-          aux tl
-      | [] ->
-          ()
-    in
-    aux builder.packages
-  ));
+  let env = Worker.build_env builder in
+  let rec aux = function
+    | Virtual { package = "download" } :: tl ->
+        run ~env [| "yypkg"; "--web"; "--auto"; "yes" |] ();
+        aux tl
+    | Real (({ devshell = true }, _) as p) :: tl ->
+        Worker.devshell ~env ~p
+    | Real ((c, _) as p) :: tl -> (
+        let log_path, log_fd = log ~p ~builder in
+        try
+          did_something :=
+            (Worker.build_one ~progress ~get ~builder ~env ~p ~log:log_fd) || !did_something;
+          if !failer then
+            Lib.(log cri "[%s] Aborting because another thread failed.\n%!"
+              builder.prefix.name)
+          else
+            aux tl
+        with _ -> (
+          failer := true;
+          Lib.(log cri "\n[%s] *** ERROR ***\n" builder.prefix.name);
+          Lib.(log cri "[%s] Build of %s failed; read the log at:\n  %S\n\n%!"
+            builder.prefix.name (to_name c) log_path)
+        );
+        Unix.close log_fd
+      )
+    | Provides _ :: tl
+    | Virtual _ :: tl ->
+        aux tl
+    | [] ->
+        ()
+  in
+  aux builder.packages;
   if !did_something && not dryrun then (
     progress ~flush:false "repository setup";
     (try
@@ -74,13 +66,14 @@ let () =
   let build ~get builders =
     let failer = ref false in
     let run_builder builder =
-      let progress = Statusline.create builder.shortname in
       Thread.create (fun builder ->
+        let progress = Statusline.create builder.shortname in
         (try build ~get ~failer ~progress builder with _ -> ());
         Statusline.release progress
       ) builder
     in
-    List.iter Thread.join (List.map run_builder builders);
+    let builders = List.filter (fun b -> b.packages <> []) builders in
+    List.(iter Thread.join (map run_builder builders));
     (if !failer then failwith "Build failed.")
   in
   let builders = List.map (List.map (fun b ->
