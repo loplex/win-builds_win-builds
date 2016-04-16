@@ -2,12 +2,21 @@
 
 set -eux
 
-# TODO: extraction failures are not propagated
-
 CWD="${1:?"The current working directory must be provided and not ''."}"
 BASE="${2:?"The archive's base name must be provided and not ''."}"
 
-find "${CWD}" -maxdepth 1 \
-  -name "${BASE}.*" -a \
-  \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' -o -name '*.tar' \) \
-  -exec tar xf${TAR_VERBOSE} {} \;
+find_tarball() {
+  find "${CWD}" -maxdepth 1 \
+    -name "${BASE}.*" -a \
+    \( -name '*.tar.[gx]z' -o -name '*.t[bgx]z' -o -name '*.tar.bz2' -o -name '*.tbz2' -o -name '*.tar' \) \
+    -exec "$@" {} +
+
+  # NOTE: we need to use '{} +' above because -exec with '{} ;' makes find
+  # always return 0 and extraction failures go unnoticed.
+}
+
+# First, ensure only one file is found.
+find_tarball "test" "-e" \
+  || echo 'Several possible source tarballs were found.' 1>&2 && exit 1
+# Then, extract the tarball
+find_tarball "tar" "xf${TAR_VERBOSE}"
