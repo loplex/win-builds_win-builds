@@ -16,7 +16,11 @@ find_tarball() {
 }
 
 # First, ensure only one file is found.
-find_tarball "test" "-e" \
-  || echo 'Several possible source tarballs were found.' 1>&2 && exit 1
+if ! find_tarball "test" "-e" > /dev/null 2>/dev/null; then
+  find_tarball "echo"
+  echo 'Several possible source tarballs were found.' 1>&2
+  exit 1
+fi
+
 # Then, extract the tarball
 find_tarball "tar" "xf${TAR_VERBOSE}"
