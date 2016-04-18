@@ -23,15 +23,12 @@ module Git = struct
   let system ?env l =
     run ?env [| Sys.getenv "SHELL"; "-c"; String.concat " " l |] ()
 
-  let git_dir dir =
-    Array.concat [ [| sp "GIT_DIR=%s/.git" dir |]; Unix.environment () ]
-
   let git_sha1 ~dir obj =
-    run_and_read ~env:(git_dir dir) [| "git"; "rev-parse"; "--verify"; "--short"; obj |]
+    run_and_read [| "git"; "-C"; dir; "rev-parse"; "--verify"; "--short"; obj |]
 
   let tar ~tarball ~prefix ~dir =
     log wrn "Building tarball from git at %S.\n%!" tarball;
-    run ~env:(git_dir dir) [|
+    run [|
       "tar"; "cf"; tarball;
       "--exclude-vcs"; "--exclude-vcs-ignores";
       "-C"; dir;
@@ -41,13 +38,13 @@ module Git = struct
 
   let archive ~obj ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
-    run ~env:(git_dir dir) [|
-      "git"; "archive"; sp "--prefix=%s/" prefix; "-o"; tarball; obj;
+    run [|
+      "git"; "-C"; dir; "archive"; sp "--prefix=%s/" prefix; "-o"; tarball; obj;
     |] ()
 
   let fetch ~dir = function
-    | Some remote -> run ~env:(git_dir dir) [| "git"; "fetch"; remote |] ()
-    | None -> run ~env:(git_dir dir) [| "git"; "fetch" |] ()
+    | Some remote -> run [| "git"; "-C"; dir; "fetch"; remote |] ()
+    | None -> run [| "git"; "-C"; dir; "fetch" |] ()
 
   let remote_add ~uri ~dir ?remote () =
     (if (not (Sys.file_exists dir)) || (not (Sys.is_directory dir)) then
@@ -61,10 +58,10 @@ module Git = struct
     );
     may (fun remote ->
       log dbg "Ensuring remote %S to %S at %S.\n%!" remote uri dir;
-      system ~env:(git_dir dir) [
-        "git"; "remote"; "-v"; "show";
+      system [
+        "git"; "-C"; dir; "remote"; "-v"; "show";
         "|"; "grep"; "-q"; sp "'^%s[[:blank:]]%s[[:blank:]](fetch)$'" remote uri;
-        "||"; "git"; "remote"; "add"; remote; uri
+        "||"; "git"; "-C"; dir; "remote"; "add"; remote; uri
       ]
     ) remote
 

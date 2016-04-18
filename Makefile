@@ -53,7 +53,7 @@ deps:
 	for repo in slackware slackbuilds.org; do \
 	  if ! [ -d "$${repo}" ] && ! [ -L "$${repo}" ]; then \
 	    git clone --no-checkout "$${REMOTE_URL%/win-builds.git}/$${repo}.git"; \
-	    git --git-dir="$${repo}/.git" --work-tree="$${repo}" checkout -b "$${BRANCH_L}" "$${BRANCH_R}"; \
+	    git -C "$${repo}" checkout -b "$${BRANCH_L}" "$${BRANCH_R}"; \
 	  fi; \
 	done
 	$(MAKE) -C deps
