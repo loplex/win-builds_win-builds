@@ -183,7 +183,7 @@ let outputs_update ((c, r) as p) =
 
 let get l =
   let pred (c, _r) ((c', _r'), _res) =
-    (c'.package = c'.package) && (c.variant = c'.variant)
+    (c.package = c'.package) && (c.variant = c'.variant)
   in
   let obtained = ref [] in
   let l = List.fold_right (fun p accu -> match p with Real p -> p :: accu | _ -> accu) l [] in
