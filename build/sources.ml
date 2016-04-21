@@ -26,21 +26,26 @@ module Git = struct
   let git_sha1 ~dir obj =
     run_and_read [| "git"; "-C"; dir; "rev-parse"; "--verify"; "--short"; obj |]
 
+  let with_temp_tarball ~f ~tarball =
+    let temp_tarball = tarball ^ ".tmp" in
+    f tarball;
+    Unix.rename temp_tarball tarball
+
   let tar ~tarball ~prefix ~dir =
     log wrn "Building tarball from git at %S.\n%!" tarball;
-    run [|
+    with_temp_tarball ~tarball ~f:(fun tarball -> run [|
       "tar"; "cf"; tarball;
       "--exclude-vcs"; "--exclude-vcs-ignores";
       "-C"; dir;
       ".";
       "--transform"; sp "s;^\\.;%s;" prefix
-    |] ()
+    |] ())
 
   let archive ~obj ~tarball ~prefix ~dir =
     log wrn "Building archive from git at %S.\n%!" tarball;
-    run [|
+    with_temp_tarball ~tarball ~f:(fun tarball -> run [|
       "git"; "-C"; dir; "archive"; sp "--prefix=%s/" prefix; "-o"; tarball; obj;
-    |] ()
+    |] ())
 
   let fetch ~dir = function
     | Some remote -> run [| "git"; "-C"; dir; "fetch"; remote |] ()
@@ -182,17 +187,15 @@ let outputs_update ((c, r) as p) =
   ( c, { r with outputs = List.map (substitute_variables ~dict:(dict p)) r.outputs } )
 
 let get l =
-  let pred (c, _r) ((c', _r'), _res) =
-    (c.package = c'.package) && (c.variant = c'.variant)
-  in
+  let pred p (p0, _p_new, _res) = p0 = p in
   let obtained = ref [] in
   let l = List.fold_right (fun p accu -> match p with Real p -> p :: accu | _ -> accu) l [] in
   let m = Mutex.create () in
   let cond = Condition.create () in
   ignore (Thread.create (fun l ->
-    List.iter (fun ((c, r) as p) ->
-      if not (List.exists (pred p) !obtained) then (
-        let (c, r) as p = sources_update p in
+    List.iter (fun ((c, r) as p0) ->
+      if not (List.exists (pred p0) !obtained) then (
+        let (c, r) as p = sources_update p0 in
         let res = (try
           ListLabels.iter r.sources ~f:(function
             | WB _ -> ()
@@ -201,9 +204,9 @@ let get l =
             | Patch y -> Patch.get y
             | _ -> assert false
           );
-          (outputs_update (c, { r with version = Git.version ~r })), None
+          p0, (outputs_update (c, { r with version = Git.version ~r })), None
         with exn ->
-          p, Some exn
+          p0, p, Some exn
         )
         in
         Mutex.lock m;
@@ -219,7 +222,8 @@ let get l =
       Condition.wait cond m
     done;
     Mutex.unlock m;
-    List.find (pred p) !obtained)
+    let p0, p_new, res = List.find (pred p) !obtained in
+    (p_new, res))
 
 let version_of_package package =
   let o = run_and_read [|
