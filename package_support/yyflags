@@ -9,7 +9,11 @@ cflags() {
 
   case "${YYDEFAULTINCLUDEPATH:-""}" in
     no) include_path='' ;;
-    *) include_path="-I/${PREFIX}/include" ;;
+    *)
+      include_path="-I/${PREFIX}/include"
+      if [ x"${HOST_TRIPLET:-""}" != x"${TARGET_TRIPLET:-""}" ]; then
+        include_path="${include_path} -I${YYPREFIX_NATIVE}/include"
+      fi ;;
   esac
 
   case "${YYOPTIMIZATION:-""}" in
@@ -55,10 +59,10 @@ ldflags() {
   case "${YYDEFAULTLIBRARYPATH:-""}" in
     no) library_path='' ;;
     *)
-      case "${HOST_PREFIX:-""}" in
-        "${TARGET_PREFIX:-""}") library_path="-L/${PREFIX}/lib${LIBDIRSUFFIX}" ;;
-        *) library_path='' ;;
-      esac
+      library_path="-L/${PREFIX}/lib${LIBDIRSUFFIX}"
+      if [ x"${HOST_TRIPLET:-""}" != x"${TARGET_TRIPLET:-""}" ]; then
+        library_path="${library_path} -L${YYPREFIX_NATIVE}/lib${LIBDIRSUFFIX}"
+      fi ;;
   esac
 
   case "${triplet}" in
