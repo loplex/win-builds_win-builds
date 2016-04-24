@@ -7,6 +7,11 @@ cflags() {
   local hardening
   local optimization
 
+  case "${YYDEFAULTINCLUDEPATH:-""}" in
+    no) include_path='' ;;
+    *) include_path="-I/${PREFIX}/include" ;;
+  esac
+
   case "${YYOPTIMIZATION:-""}" in
     *) optimization='-O2' ;;
   esac
@@ -22,7 +27,7 @@ cflags() {
     *) hardening='' ;;
   esac
 
-  echo ${optimization} ${dbg} ${hardening}
+  echo ${include_path} ${optimization} ${dbg} ${hardening}
 }
 
 cxxflags() {
