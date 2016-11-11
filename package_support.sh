@@ -21,7 +21,13 @@ export PATH="${WIN_BUILDS_SOURCES}/package_support:${PATH}"
 # the use of our newly-built bash.
 export CONFIG_SHELL="$(which bash)"
 
-if ! chown root:root / 2>/dev/null; then chown() { : ; }; export -f chown; fi
+# Try to chown / to the owner and group of /
+# This is a no-op but should let us find out whether we're running as root and
+# can chown arbitrary files or not
+if ! chown root:root --reference=/ / 2>/dev/null; then
+  chown() { : ; }
+  export -f chown
+fi
 
 export MAKEFLAGS="${NUMJOBS}"
 
