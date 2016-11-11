@@ -6,6 +6,7 @@ export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 NEEDS = $(shell (export PATH="$(PATH)"; $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
 NEEDS_GNU = $(call NEEDS,$(1) --version,$(2).*Free Software Foundation,$(3))
 NEEDS_HEADER = $(call NEEDS,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
+NEEDS_OCAML = $(shell (export PATH="$(PATH)"; ocamlc -v 2>&1 | grep 'Standard library directory: $(PREFIX)/lib/ocaml' >/dev/null 2>/dev/null || echo '$(1)'))
 
 NEEDS_XZ := $(call NEEDS,xz --version,XZ Utils,xz)
 NEEDS_LIBLZMA := $(call NEEDS_HEADER,lzma.h,liblzma)
@@ -18,12 +19,13 @@ NEEDS_FINDUTILS := $(call NEEDS_GNU,find,,findutils)
 NEEDS_BASH := $(call NEEDS_GNU,bash,4\.4\.,bash)
 NEEDS_LIBARCHIVE := $(call NEEDS_HEADER,archive.h,libarchive)
 NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
-# TODO: ocaml and findlib are a bit annoying to skip because the system ones
+
+# NOTE: ocaml and findlib are a bit annoying to skip because the system ones
 # have strong opinions on where installed files should go and we don't want to
 # require root.
-NEEDS_OCAML := ocaml
-NEEDS_FINDLIB := findlib
-NEEDS_OCAMLBUILD := ocamlbuild
+NEEDS_OCAML := $(call NEEDS_OCAML,ocaml)
+NEEDS_OCAMLBUILD := $(call NEEDS_OCAMLBUILD,ocamlbuild)
+NEEDS_FINDLIB := $(call NEEDS_OCAMLBUILD,findlib)
 
 PATCHES := $(shell pwd)/patches
 
