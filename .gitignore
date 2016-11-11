@@ -42,23 +42,9 @@ installer
 lxc_mount
 Makefile.data.local
 
-deps/prefix
-deps/coreutils-*
-deps/findutils-*
-deps/sed-*
-deps/make-*
-deps/findlib-*
-deps/ocaml-*
-deps/cryptokit-*
-deps/libocaml_*
-deps/tarballs
-deps/yypkg-*
-deps/bash-*
-deps/tar-*
-deps/patch-*
-deps/libarchive-*
-deps/xz-*
-deps/m4-*
+deps/*
+!deps/Makefile
+!deps/post-ocamllex
 
 slackware
 slackbuilds.org
