@@ -44,7 +44,7 @@ DOWNLOAD_AND_EXTRACT = \
 BUILD_AUTOTOOLS = \
 	cd $(1)-$(2) \
 	&& ./configure --prefix=$(PREFIX) $(3) \
-	&& $(MAKE) \
+	&& $(MAKE) $(NUMJOBS) \
 	&& $(MAKE) install
 
 BUILD_OASIS = \
