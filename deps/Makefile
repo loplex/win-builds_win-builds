@@ -15,7 +15,7 @@ NEEDS_TAR := $(call NEEDS_GNU,tar,,tar)
 NEEDS_MAKE := $(call NEEDS_GNU,make,4\.[^0]$,make)
 NEEDS_SED := $(call NEEDS_GNU,sed,,sed)
 NEEDS_FINDUTILS := $(call NEEDS_GNU,find,,findutils)
-NEEDS_BASH := bash
+NEEDS_BASH := $(call NEEDS_GNU,bash,4\.4\.,bash)
 NEEDS_LIBARCHIVE := $(call NEEDS_HEADER,archive.h,libarchive)
 NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
 # TODO: ocaml and findlib are a bit annoying to skip because the system ones
@@ -101,7 +101,6 @@ sed: $(NEEDS_XZ)
 
 bash:
 	$(call DOWNLOAD_AND_EXTRACT,bash-$(BASH_VERSION),tar.gz)
-	cd "bash-$(BASH_VERSION)" && $(call P,bash/nfd_lte_nbuffers)
 	$(call BUILD_AUTOTOOLS,bash,$(BASH_VERSION),)
 
 tar: $(NEEDS_XZ)
