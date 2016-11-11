@@ -4,7 +4,7 @@ let re_extras_hook = Str.regexp "[ ]*#extras"
 let re_extras = Str.regexp ","
 
 let extras_of_env basename =
-  let name = (String.uppercase basename) ^ "_EXTRAS" in
+  let name = (String.uppercase_ascii basename) ^ "_EXTRAS" in
   try
     Str.split re_extras (Sys.getenv name)
   with
@@ -20,8 +20,8 @@ let rec use ?(toplevel = false) ?(extras = []) file =
   let ic = open_in_bin file in
   let basename = Filename.chop_extension (Filename.basename file) in
   (if toplevel then (
-    let modname = String.capitalize basename in
-    Printf.printf "module %s = struct\n" (String.capitalize modname)
+    let modname = String.capitalize_ascii basename in
+    Printf.printf "module %s = struct\n" (String.capitalize_ascii modname)
   )
   else (
     let dir = Filename.dirname file in

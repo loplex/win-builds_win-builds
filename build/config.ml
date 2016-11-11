@@ -187,7 +187,7 @@ module Builder = struct
 
   let shall_build builder_name =
     let h = Hashtbl.create 200 in
-    ListLabels.iter (set_of_env (String.uppercase builder_name)) ~f:(fun e ->
+    ListLabels.iter (set_of_env (String.uppercase_ascii builder_name)) ~f:(fun e ->
       match Str.split (Str.regexp ":") e with
       | [ n ] -> Hashtbl.add h (n, None, false) true
       | [ n; "devshell" ] -> Hashtbl.add h (n, None, true) true

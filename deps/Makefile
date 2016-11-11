@@ -23,6 +23,7 @@ NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
 # require root.
 NEEDS_OCAML := ocaml
 NEEDS_FINDLIB := findlib
+NEEDS_OCAMLBUILD := ocamlbuild
 
 PATCHES := $(shell pwd)/patches
 
@@ -142,7 +143,14 @@ libocaml: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_XZ)
 		(cd libocaml_$${s}.$(LIBOCAML_VERSION) && $(MAKE) && $(MAKE) install); \
 	done
 
-ocaml-fileutils: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
+ocamlbuild: $(NEEDS_MAKE) $(NEEDS_OCAML) $(NEEDS_FINDLIB)
+	$(call DOWNLOAD_AND_EXTRACT,ocamlbuild-$(OCAMLBUILD_VERSION),tar.gz)
+	cd ocamlbuild-$(OCAMLBUILD_VERSION) \
+	&& make configure \
+	&& make $(NUMJOBS) \
+	&& make install
+
+ocaml-fileutils: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_OCAMLBUILD)
 	ocamlfind remove fileutils
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-fileutils-$(FILEUTILS_VERSION),tar.gz)
 	cd ocaml-fileutils-$(FILEUTILS_VERSION) \
@@ -150,7 +158,7 @@ ocaml-fileutils: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
 	&& $(call P,fileutils/0002-FileUtil-symlinks-patch-2)
 	$(call BUILD_OASIS,ocaml-fileutils,$(FILEUTILS_VERSION),)
 
-ocaml-archive: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_LIBARCHIVE) $(NEEDS_SED)
+ocaml-archive: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_LIBARCHIVE) $(NEEDS_SED) $(NEEDS_OCAMLBUILD)
 	ocamlfind remove archive
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-archive-$(ARCHIVE_VERSION),tar.gz)
 	cd ocaml-archive-$(ARCHIVE_VERSION) \
@@ -162,17 +170,17 @@ ocaml-archive: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_LIBARCHIVE) $(NEEDS_SED)
 	&& sed -i 's/malloc\.h/stdlib\.h/' src/Archive_stub.c
 	$(call BUILD_OASIS,ocaml-archive,$(ARCHIVE_VERSION),--disable-archivelwt --disable-tests --disable-docs)
 
-cryptokit: $(NEEDS_OCAML) $(NEEDS_FINDLIB)
+cryptokit: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_OCAMLBUILD)
 	ocamlfind remove cryptokit
 	$(call DOWNLOAD_AND_EXTRACT,cryptokit-$(CRYPTOKIT_VERSION),tar.gz)
 	$(call BUILD_OASIS,cryptokit,$(CRYPTOKIT_VERSION),)
 
-yypkg: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_BSDTAR) libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ)
+yypkg: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_BSDTAR) libocaml ocaml-fileutils ocaml-archive cryptokit $(NEEDS_XZ) $(NEEDS_OCAMLBUILD)
 	$(call DOWNLOAD_AND_EXTRACT,yypkg-$(YYPKG_VERSION),tar.gz)
 	cd yypkg-$(YYPKG_VERSION) && $(MAKE) yypkg-no-gui
 	cp -L yypkg-$(YYPKG_VERSION)/src/yypkg.native $(PREFIX)/bin/yypkg
 
-ocaml-efl:
+ocaml-efl: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_OCAMLBUILD)
 	ocamlfind remove efl
 	$(call DOWNLOAD_AND_EXTRACT,ocaml-efl-$(OCAML_EFL_VERSION),tar.gz)
 	$(call BUILD_AUTOTOOLS,ocaml-efl,$(OCAML_EFL_VERSION),OCAMLFIND_DESTDIR="$$(ocamlfind printconf destdir)")

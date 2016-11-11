@@ -82,7 +82,7 @@ let register ~builder =
   in
   let shall_build = shall_build builder.prefix.name in
   let add_cross_builder_deps ~builder_name l =
-    let v = String.uppercase builder_name in
+    let v = String.uppercase_ascii builder_name in
     let set = set_of_env v in
     let set = ListLabels.fold_left l ~init:set ~f:(fun set e ->
       if not (List.mem e set) then
