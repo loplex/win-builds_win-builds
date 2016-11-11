@@ -124,8 +124,8 @@ ocaml: $(NEEDS_MAKE) $(NEEDS_XZ)
 		&& sed -i -e 's/_execvpe proc args/\0 env/' -e 's/let execvpe proc args/\0 env/' otherlibs/threads/unix.ml \
 		&& $(call P,ocaml/ocaml_execvpe) \
 		&& ./configure -no-curses -no-debugger -prefix $(PREFIX) \
-		&& $(MAKE) -j1 world.opt \
-		&& $(MAKE) -j1 install)
+		&& $(MAKE) $(NUMJOBS) world.opt \
+		&& $(MAKE) $(NUMJOBS) install)
 
 findlib: $(NEEDS_OCAML)
 	$(call DOWNLOAD_AND_EXTRACT,findlib-$(FINDLIB_VERSION),tar.gz)
