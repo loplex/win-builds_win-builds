@@ -37,7 +37,7 @@ DOWNLOAD_AND_EXTRACT = \
 	fi \
 	&& (case $(2) in \
 	  "tar.gz"|"tgz") tar xzf "tarballs/$(1).$(2)";; \
-	  "tar.bz2"|"tbz2") tar xjf "tarballs/$(1).$(2)";; \
+	  "tar.bz2"|"tbz2"|"tbz") tar xjf "tarballs/$(1).$(2)";; \
 	  "tar.xz"|"txz") xz -d < "tarballs/$(1).$(2)" | tar xf - ;; \
 	esac)
 
