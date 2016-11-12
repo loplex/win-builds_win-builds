@@ -100,10 +100,13 @@ makepkg '' \
   "${TAR_DIR}" &
 IDS="${IDS} $!"
 
-makepkg 'dbg' \
-  -C "${PKG}/${PREFIX}/.." \
-  "${TAR_DIR}/lib${LIBDIRSUFFIX}/debug" &
-IDS="${IDS} $!"
+
+if [ -e "${PKG}/${PREFIX}/lib${LIBDIRSUFFIX}/debug" ]; then
+  makepkg 'dbg' \
+    -C "${PKG}/${PREFIX}/.." \
+    "${TAR_DIR}/lib${LIBDIRSUFFIX}/debug" &
+  IDS="${IDS} $!"
+fi
 
 for ID in ${IDS}; do
   wait "${ID}"
