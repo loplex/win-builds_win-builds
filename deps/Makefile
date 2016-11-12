@@ -137,12 +137,14 @@ findlib: $(NEEDS_OCAML)
 libocaml: $(NEEDS_OCAML) $(NEEDS_FINDLIB) $(NEEDS_XZ)
 	for s in exception option lexing plus ipv4_address ipv6_address uri http; do \
 		$(call DOWNLOAD_AND_EXTRACT,libocaml_$${s}.$(LIBOCAML_VERSION),tar.xz) \
-		&& sed -i '/-w @a-4-6-7-9-23-26-27-29-41/ s/@//' \
+		&& sed -i \
+			-e '/-w @a-4-6-7-9-23-26-27-29-41/ s/@//' \
+			-e 's/ocaml \($$<\) \($$(CONFIGURE_FLAGS)\)/ocaml \2 \1/' \
 			libocaml_$${s}.$(LIBOCAML_VERSION)/lib/libocaml/make/GNUmakefile; \
 	done
 	cp post-ocamllex libocaml_lexing.$(LIBOCAML_VERSION)/src
 	for s in exception option lexing plus ipv4_address ipv6_address uri http; do \
-		(cd libocaml_$${s}.$(LIBOCAML_VERSION) && $(MAKE) && $(MAKE) install); \
+		(cd libocaml_$${s}.$(LIBOCAML_VERSION) && $(MAKE) CONFIGURE_FLAGS='-I .' && $(MAKE) install); \
 	done
 
 ocamlbuild: $(NEEDS_MAKE) $(NEEDS_OCAML) $(NEEDS_FINDLIB)
