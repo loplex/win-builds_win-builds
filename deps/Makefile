@@ -24,8 +24,8 @@ NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
 # have strong opinions on where installed files should go and we don't want to
 # require root.
 NEEDS_OCAML := $(call NEEDS_OCAML,ocaml)
-NEEDS_OCAMLBUILD := $(call NEEDS_OCAMLBUILD,ocamlbuild)
-NEEDS_FINDLIB := $(call NEEDS_OCAMLBUILD,findlib)
+NEEDS_OCAMLBUILD := $(call NEEDS_OCAML,ocamlbuild)
+NEEDS_FINDLIB := $(call NEEDS_OCAML,findlib)
 
 PATCHES := $(shell pwd)/patches
 
