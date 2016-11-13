@@ -8,7 +8,7 @@ build_real:
 	@echo "NUMJOBS          =   \"$(NUMJOBS)\""
 	@echo "TAR_VERBOSE      =   \"$(TAR_VERBOSE)\""
 	@echo "BUILD_TRIPLET    =   \"$(BUILD_TRIPLET)\""
-	@LANG="C" NUMJOBS="$(NUMJOBS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" ocaml unix.cma str.cma -I +threads threads.cma build/amalgated.ml $(VERSION)
+	@LC_ALL="C" NUMJOBS="$(NUMJOBS)" BUILD_TRIPLET="$(BUILD_TRIPLET)" TAR_VERBOSE="$(TAR_VERBOSE)" ocaml unix.cma str.cma -I +threads threads.cma build/amalgated.ml $(VERSION)
 
 ifneq ($(WITH_LXC),)
 
