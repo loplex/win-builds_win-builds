@@ -33,10 +33,10 @@ DOWNLOAD_AND_EXTRACT = \
 	rm -rf "$(1)" \
 	&& mkdir -p tarballs \
 	&& if ! [ -e "tarballs/$(1).$(2)" ]; then \
-		curl --fail "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)" \
+		curl --fail "$(YYPKG_FILES)/$(1).$(2)" > "tarballs/$(1).$(2)" \
 		|| { \
 			curl_ret="$$?"; \
-			rm -f "$(1).$(2)"; \
+			rm -f "tarballs/$(1).$(2)"; \
 			exit "$${curl_ret}"; \
 		} \
 	fi \
