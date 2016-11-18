@@ -6,7 +6,7 @@ export C_INCLUDE_PATH:=$(PREFIX)/include:$(C_INCLUDE_PATH)
 NEEDS = $(shell (export PATH="$(PATH)"; $(1) 2>/dev/null | tr '\n' ' ' | grep '$(2)' >/dev/null 2>/dev/null) || echo '$(3)')
 NEEDS_GNU = $(call NEEDS,$(1) --version,$(2).*Free Software Foundation,$(3))
 NEEDS_HEADER = $(call NEEDS,echo '\#include <$(1)>' | cc - -E -I$(PREFIX)/include,.,$(2))
-NEEDS_OCAML = $(shell (export PATH="$(PATH)"; ocamlc -v 2>&1 | grep 'Standard library directory: $(PREFIX)/lib/ocaml' >/dev/null 2>/dev/null || echo '$(1)'))
+NEEDS_OCAML_T = $(shell (export PATH="$(PATH)"; ocamlc -v 2>&1 | grep 'Standard library directory: $(PREFIX)/lib/ocaml' >/dev/null 2>/dev/null || echo '$(1)'))
 
 NEEDS_XZ := $(call NEEDS,xz --version,XZ Utils,xz)
 NEEDS_LIBLZMA := $(call NEEDS_HEADER,lzma.h,liblzma)
@@ -23,9 +23,9 @@ NEEDS_BSDTAR := $(call NEEDS,bsdtar --version,libarchive,bsdtar)
 # NOTE: ocaml and findlib are a bit annoying to skip because the system ones
 # have strong opinions on where installed files should go and we don't want to
 # require root.
-NEEDS_OCAML := $(call NEEDS_OCAML,ocaml)
-NEEDS_OCAMLBUILD := $(call NEEDS_OCAML,ocamlbuild)
-NEEDS_FINDLIB := $(call NEEDS_OCAML,findlib)
+NEEDS_OCAML := $(call NEEDS_OCAML_T,ocaml)
+NEEDS_OCAMLBUILD := $(call NEEDS_OCAML_T,ocamlbuild)
+NEEDS_FINDLIB := $(call NEEDS_OCAML_T,findlib)
 
 PATCHES := $(shell pwd)/patches
 
@@ -33,7 +33,12 @@ DOWNLOAD_AND_EXTRACT = \
 	rm -rf "$(1)" \
 	&& mkdir -p tarballs \
 	&& if ! [ -e "tarballs/$(1).$(2)" ]; then \
-		(cd tarballs && curl "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)" || rm -f "$(1).$(2)") \
+		curl --fail "$(YYPKG_FILES)/$(1).$(2)" > "$(1).$(2)" \
+		|| { \
+			curl_ret="$$?"; \
+			rm -f "$(1).$(2)"; \
+			exit "$${curl_ret}"; \
+		} \
 	fi \
 	&& (case $(2) in \
 	  "tar.gz"|"tgz") tar xzf "tarballs/$(1).$(2)";; \
